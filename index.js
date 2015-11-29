@@ -13,8 +13,6 @@ var options={};
 
     }).then(function(){
       exec('echo -n $(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\')').then(function(hostIp){
-        console.log(hostIp)
-
         options.hostIp=hostIp.split('.')[0]+'.'+hostIp.split('.')[1]+'.'+hostIp.split('.')[2]+'.1'
     resolve(options)
       }).catch(function(err){
@@ -29,11 +27,16 @@ var options={};
 
 }
 
-function WlanSwitch(){
-  return WlSwConf()
-}
 
-WlanSwitch.prototype.ap=function(){
+
+
+module.exports=function(){
+
+this.configure=function(){
+return WlSwConf()  
+};
+
+this.ap=function(){
   return new Promise(function(resolve,reject){
 
   WlSwConf().then(function(){
@@ -51,29 +54,29 @@ return exec(cmd).then(function(){
 })
 
   })
-}
+};
 
-WlanSwitch.prototype.client=function(){
+this.client=function(){
 
+    return new Promise(function(resolve,reject){
 
-  return new Promise(function(resolve,reject){
-
-  WlSwConf().then(function(){
-
-
-  var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
+    WlSwConf().then(function(){
 
 
-return exec(cmd).then(function(){
-  resolve({success:true,mode:'client'})
-}).catch(function(err){
-  verb(err,'error','hostapd_switch')
-})
+    var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
 
-}).catch(function(err){
-  verb(err,'error','hostapd_switch')
-})
 
+  return exec(cmd).then(function(){
+    resolve({success:true,mode:'client'})
+  }).catch(function(err){
+    verb(err,'error','hostapd_switch')
   })
+
+  }).catch(function(err){
+    verb(err,'error','hostapd_switch')
+  })
+
+    })
+};
+
 }
-module.exports=WlanSwitch

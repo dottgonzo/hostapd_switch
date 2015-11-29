@@ -79,6 +79,6 @@ client:function(){
     })
 }
 
-}
+};
 
 module.exports=Wswitch

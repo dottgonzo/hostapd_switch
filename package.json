@@ -1,0 +1,32 @@
+{
+  "name": "hostapd_switch",
+  "version": "0.0.0",
+  "description": "Utility to easy switch between client mode and ap mode. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "hw": "git add -A && git commit -m 'oki'&&npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish",
+"patch": "npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dottgonzo/hostapd_switch.git"
+  },
+  "keywords": [
+    "network",
+    "hostapd",
+    "wpa_supplicant",
+    "wpasupplicant",
+    "wifi",
+    "wlan"
+  ],
+  "author": "Dario Caruso",
+  "license": "GPL v2",
+  "bugs": {
+    "url": "https://github.com/dottgonzo/hostapd_switch/issues"
+  },
+  "dependencies": {
+    "promised-exec": "^1.0.1",
+    "verbo": "0.0.9"
+  }
+}

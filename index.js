@@ -70,7 +70,7 @@ client:function(testnetwork,testinternet){
 
   return exec(cmd).then(function(){
     if(testnetwork){
-          setTimeout(function () {
+
 
             netw.data().then(function(n){
               for(ns=0;ns<n.networks.length;ns++){
@@ -96,10 +96,10 @@ client:function(testnetwork,testinternet){
 }
             })
 
-          }, 50000)
+
     }
   }).catch(function(){
-    setTimeout(function () {
+
 
       netw.data().then(function(n){
         for(ns=0;ns<n.networks.length;ns++){
@@ -124,7 +124,7 @@ client:function(testnetwork,testinternet){
   }
       })
 
-    }, 20000)
+    
     })
 
   }).catch(function(err){

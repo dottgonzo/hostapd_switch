@@ -34,8 +34,13 @@ function testconn(options,testint){
   setTimeout(function() {
 
             netw.data().then(function(n){
-              console.log(n.networks[0])
+              console.log(n)
               for(ns=0;ns<n.networks.length;ns++){
+                console.log(n.networks[ns])
+
+
+
+
                 if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
 console.log('RUNNING')
               if(testint){

@@ -32,11 +32,11 @@ var options={};
 
 module.exports=function(){
 
-this.configure=function(){
-return WlSwConf()  
+configure:function(){
+return WlSwConf()
 };
 
-this.ap=function(){
+ap:function(){
   return new Promise(function(resolve,reject){
 
   WlSwConf().then(function(){
@@ -56,7 +56,7 @@ return exec(cmd).then(function(){
   })
 };
 
-this.client=function(){
+client:function(){
 
     return new Promise(function(resolve,reject){
 

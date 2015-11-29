@@ -31,6 +31,10 @@ function WlSwConf(){
 }
 
 function testconn(options,testint){
+  var deferred = q.defer();
+
+
+
 
   setTimeout(function() {
 
@@ -44,20 +48,21 @@ function testconn(options,testint){
         }
       }
       if(!dev){
-        verb('no device','error','hostapd_switch')
+
+        deferred.reject('no device')
 
       } else{
 
         if(testint){
           testinternet().then(function(){
-            verb({success:true,mode:'client',connected:true,internet:true},'info','hostapd_switch')
+            deferred.resolve({success:true,mode:'client',connected:true,internet:true})
           }).catch(function(err){
-            verb(err,'error','netw error')
+            deferred.reject(err)
           })
 
 
         } else{
-          verb({success:true,mode:'client',connected:true},'info','hostapd_switch')
+          deferred.resolve({success:true,mode:'client',connected:true})
         }
       }
       console.log('RUNNING')
@@ -65,12 +70,15 @@ function testconn(options,testint){
 
 
     }).catch(function(err){
-      verb(err,'error','netw error')
+      deferred.reject(err)
+
+
     })
 
   }, 30000);
 
 
+  return deferred.promise;
 
 
 }
@@ -114,16 +122,25 @@ module.exports = {
 
         return exec(cmd).then(function(){
           if(testnetw){
-            testconn(options,testint)
+            testconn(options,testint).then(function(answer){
+              resolve(answer)
+            }).catch(function(err){
+              reject(err)
+
+            })
           }
-          resolve({success:true,mode:'client'})
 
 
         }).catch(function(err){
           if(testnetw){
-            testconn(options,testint)
+            testconn(options,testint).then(function(answer){
+              resolve(answer)
+            }).catch(function(err){
+              reject(err)
+
+            })
           }
-          resolve({success:true,mode:'client'})
+
 
 
 

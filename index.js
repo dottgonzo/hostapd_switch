@@ -30,55 +30,55 @@ var options={};
 
 
 
-var Wswitch={
+var wswitch={
 
 configure:function(){
 return WlSwConf()
-},
-
-ap:function(){
-  return new Promise(function(resolve,reject){
-
-  WlSwConf().then(function(){
-
-
-  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.hostIp+' netmask 255.255.255.0 up'
-return exec(cmd).then(function(){
-  resolve({success:true,mode:'ap'})
-}).catch(function(err){
-  verb(err,'error','hostapd_switch')
-})
-
-}).catch(function(err){
-  verb(err,'error','hostapd_switch')
-})
-
-  })
-},
-
-client:function(){
-
-    return new Promise(function(resolve,reject){
-
-    WlSwConf().then(function(){
-
-
-    var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
-
-
-  return exec(cmd).then(function(){
-    resolve({success:true,mode:'client'})
-  }).catch(function(err){
-    verb(err,'error','hostapd_switch')
-  })
-
-  }).catch(function(err){
-    verb(err,'error','hostapd_switch')
-  })
-
-    })
 }
+//
+// ap:function(){
+//   return new Promise(function(resolve,reject){
+//
+//   WlSwConf().then(function(){
+//
+//
+//   var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.hostIp+' netmask 255.255.255.0 up'
+// return exec(cmd).then(function(){
+//   resolve({success:true,mode:'ap'})
+// }).catch(function(err){
+//   verb(err,'error','hostapd_switch')
+// })
+//
+// }).catch(function(err){
+//   verb(err,'error','hostapd_switch')
+// })
+//
+//   })
+// },
+//
+// client:function(){
+//
+//     return new Promise(function(resolve,reject){
+//
+//     WlSwConf().then(function(){
+//
+//
+//     var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
+//
+//
+//   return exec(cmd).then(function(){
+//     resolve({success:true,mode:'client'})
+//   }).catch(function(err){
+//     verb(err,'error','hostapd_switch')
+//   })
+//
+//   }).catch(function(err){
+//     verb(err,'error','hostapd_switch')
+//   })
+//
+//     })
+// }
 
 };
 
-module.exports=Wswitch
+module.exports=wswitch

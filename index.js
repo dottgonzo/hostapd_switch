@@ -29,7 +29,7 @@ var options={};
 
 }
 
-function testconn(testnetwork,testinternet,options){
+function testconn(options,testint){
 
   setTimeout(function() {
 
@@ -38,7 +38,7 @@ function testconn(testnetwork,testinternet,options){
               for(ns=0;ns<n.networks.length;ns++){
                 if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
 console.log('RUNNING')
-              if(testinternet){
+              if(testint){
                 testinternet().then(function(){
 
                   verb({success:true,mode:'client',connected:true,internet:true},'error','netw error')
@@ -96,7 +96,7 @@ ap:function(){
   })
 },
 
-client:function(testnetwork,testinternet){
+client:function(testnetw,testint){
 
     return new Promise(function(resolve,reject){
 
@@ -109,13 +109,13 @@ client:function(testnetwork,testinternet){
     resolve({success:true,mode:'client'})
 
     if(testnetwork){
-      testconn(testnetwork,testinternet,options)
+      testconn(options,testint)
     }
   }).catch(function(err){
     resolve({success:true,mode:'client'})
 
     if(testnetwork){
-      testconn(testnetwork,testinternet,options)
+      testconn(options,testint)
     }
 
       })

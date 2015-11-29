@@ -103,6 +103,8 @@ client:function(testnetwork,testinternet){
       testconn(testnetwork,testinternet).then(function(answer){
         resolve(answer)
 
+      }).catch(function(err){
+        verb(err,'error','hostapd_switch')
       })
     } else {
       resolve({success:true,mode:'client'})
@@ -113,6 +115,8 @@ client:function(testnetwork,testinternet){
       testconn(testnetwork,testinternet).then(function(answer){
         resolve(answer)
 
+      }).catch(function(err){
+        verb(err,'error','hostapd_switch')
       })
     } else {
       resolve({success:true,mode:'client'})

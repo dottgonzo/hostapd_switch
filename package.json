@@ -7,7 +7,7 @@
     "test": "mocha",
     "ap":"node ./run/ap.js",
     "client":"node ./run/client.js",
-    "settings":"node ./run/configure.js",
+    "settings":"node ./run/settings.js",
     "hw": "git add -A && git commit -m 'oki'&&npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish",
     "patch": "npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish"
   },

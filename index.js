@@ -33,7 +33,8 @@ var options={};
 var wswitch={
 
 configure:function(){
-WlSwConf()
+console.log('ll')
+//return WlSwConf()
 }
 //
 // ap:function(){

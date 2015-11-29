@@ -43,11 +43,11 @@ WlanSwitch.prototype.ap=function(){
 return exec(cmd).then(function(){
   resolve({success:true,mode:'ap'})
 }).catch(function(err){
-  verb(err.'error','hostapd_switch')
+  verb(err,'error','hostapd_switch')
 })
 
 }).catch(function(err){
-  verb(err.'error','hostapd_switch')
+  verb(err,'error','hostapd_switch')
 })
 
   })
@@ -67,11 +67,11 @@ WlanSwitch.prototype.client=function(){
 return exec(cmd).then(function(){
   resolve({success:true,mode:'client'})
 }).catch(function(err){
-  verb(err.'error','hostapd_switch')
+  verb(err,'error','hostapd_switch')
 })
 
 }).catch(function(err){
-  verb(err.'error','hostapd_switch')
+  verb(err,'error','hostapd_switch')
 })
 
   })

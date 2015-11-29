@@ -28,9 +28,15 @@ function WlSwConf(){
 }
 
 function WlanSwitch(){
+  return new Promise(function(resolve,reject){
 
-return WlSwConf()
+WlSwConf().then(function(options){
+  resolve(options)
 
+}).catch(function(err){
+  reject(err)
+})
+})
 }
 
 WlanSwitch.prototype.ap=function(){

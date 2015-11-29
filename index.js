@@ -36,31 +36,33 @@ function testconn(options,testint){
             netw.data().then(function(n){
               console.log(n)
               console.log(options)
-
+              var dev=false
               for(ns=0;ns<n.networks.length;ns++){
-                console.log(n.networks[ns].dev,options.interface && n.networks[ns].connected)
-
-
-
-
                 if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+                  var dev=true
+                }
+              }
+              if(dev){
+                verb('no device','error','hostapd_switch')
+
+              } else{
+
+                if(testint){
+                  testinternet().then(function(){
+                    verb({success:true,mode:'client',connected:true,internet:true},'info','hostapd_switch')
+                  }).catch(function(err){
+                    verb(err,'error','netw error')
+                  })
+
+
+      } else{
+        verb({success:true,mode:'client',connected:true},'info','hostapd_switch')
+      }
+              }
 console.log('RUNNING')
-              if(testint){
-                testinternet().then(function(){
 
-                  verb({success:true,mode:'client',connected:true,internet:true},'info','hostapd_switch')
 
-                }).catch(function(err){
-                  verb(err,'error','netw error')
 
-                })
-    } else{
-
-      verb({success:true,mode:'client',connected:true},'error','netw error')
-
-    }
-  }
-    }
   }).catch(function(err){
 verb(err,'error','netw error')
   })

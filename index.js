@@ -30,7 +30,7 @@ var options={};
 
 
 
-var Wswitch=function(){
+module.exports={
 
 configure:function(){
 return WlSwConf()
@@ -80,5 +80,3 @@ client:function(){
 }
 
 }
-
-module.exports=Wswitch

@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "ap":"node ./run/ap.js",
-    "client":"node ./run/client.js",
-    "settings":"node ./run/settings.js",
+    "ap": "node ./run/ap.js",
+    "client": "node ./run/client.js",
+    "settings": "node ./run/settings.js",
     "hw": "git add -A && git commit -m 'oki'&&npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish",
     "patch": "npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish"
   },
@@ -29,7 +29,9 @@
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
+    "netw": "0.0.2",
     "promise": "^7.0.4",
+    "promise-test-connection": "0.0.2",
     "promised-exec": "^1.0.1",
     "verbo": "0.0.9"
   }

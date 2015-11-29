@@ -1,5 +1,7 @@
 var exec = require('promised-exec'),
 Promise=require('promise'),
+testinternet=require('promise-test-connection'),
+netw=require('netw')
 verb=require('verbo');
 
 
@@ -57,7 +59,7 @@ ap:function(){
   })
 },
 
-client:function(){
+client:function(testnetwork,testinternet){
 
     return new Promise(function(resolve,reject){
 
@@ -67,7 +69,34 @@ client:function(){
     var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+options.interface
 
   return exec(cmd).then(function(){
-    resolve({success:true,mode:'client'})
+    if(testnetwork){
+          setTimeout(function () {
+
+            netw().then(function(n){
+              for(ns=0;ns<n.networks.length;ns++){
+                if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+
+              if(testinternet){
+                testinternet().then(function(){
+                  resolve({success:true,mode:'client',connected:true,internet:true})
+
+                }).catch(function(){
+                  reject({error:'device is not connected'})
+
+                })
+} else{
+  resolve({success:true,mode:'client',connected:true})
+
+}
+} else{
+  reject({error:'device is not connected'})
+
+}
+}
+            })
+
+          }, 20000)
+    }
   }).catch(function(err){
     resolve({success:true,mode:'ap'})
   })

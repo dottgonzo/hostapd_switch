@@ -2,7 +2,6 @@ var exec = require('promised-exec'),
 Promise=require('promise'),
 testinternet=require('promise-test-connection'),
 netw=require('netw'),
-q=require('q'),
 verb=require('verbo');
 
 
@@ -32,7 +31,6 @@ var options={};
 
 function testconn(testnetwork,testinternet){
 
-  var deferred = q.defer();
   setTimeout(function() {
 
 
@@ -45,30 +43,30 @@ function testconn(testnetwork,testinternet){
 
               if(testinternet){
                 testinternet().then(function(){
-                  deferred.resolve({success:true,mode:'client',connected:true,internet:true})
+
+                  verb({success:true,mode:'client',connected:true,internet:true},'error','netw error')
 
                 }).catch(function(err){
-                  deferred.reject(new Error(error));
+                  verb('not connected','error','netw error')
 
                 })
     } else{
 
-    deferred.resolve({success:true,mode:'client',connected:true})
+      verb({success:true,mode:'client',connected:true},'error','netw error')
 
     }
   } else{
-    deferred.reject(new Error(error));
+    verb('not connected','error','netw error')
 
   }
     }
-  }).catch(function(){
-    deferred.reject(new Error(error));
-
+  }).catch(function(err){
+verb(err,'error','netw error')
   })
 
-  }, 50000);
+}, 30000);
 
-            return deferred.promise;
+
 
 
 }
@@ -111,25 +109,17 @@ client:function(testnetwork,testinternet){
     var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+options.interface
 
   return exec(cmd).then(function(){
+    resolve({success:true,mode:'client'})
+
     if(testnetwork){
-      testconn(testnetwork,testinternet).then(function(answer){
-        resolve(answer)
-
-      })
-    } else {
-      resolve({success:true,mode:'client'})
-
+      testconn(testnetwork,testinternet)
     }
   }).catch(function(err){
+    resolve({success:true,mode:'client'})
+
     if(testnetwork){
-      testconn(testnetwork,testinternet).then(function(answer){
-        resolve(answer)
-
-      })
-    } else {
-      resolve({success:true,mode:'client'})
-
-    }
+      testconn(testnetwork,testinternet)
+    } 
 
       })
 

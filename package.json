@@ -33,7 +33,6 @@
     "promise": "^7.0.4",
     "promise-test-connection": "0.0.2",
     "promised-exec": "^1.0.1",
-    "q": "^1.4.1",
     "verbo": "0.0.9"
   }
 }

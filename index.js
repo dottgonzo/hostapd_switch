@@ -39,10 +39,10 @@ return WlSwConf()
 ap:function(){
   return new Promise(function(resolve,reject){
 
-  WlSwConf().then(function(){
+  WlSwConf().then(function(options){
 
 
-  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.hostIp+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
 console.log(cmd)
  return exec(cmd).then(function(){
   resolve({success:true,mode:'ap'})
@@ -61,10 +61,10 @@ client:function(){
 
     return new Promise(function(resolve,reject){
 
-    WlSwConf().then(function(){
+    WlSwConf().then(function(options){
 
 
-    var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
+    var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+options.interface
 
 console.log(cmd)
   return exec(cmd).then(function(){

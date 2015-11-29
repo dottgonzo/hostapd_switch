@@ -29,13 +29,9 @@ var options={};
 
 }
 
-function testconn(testnetwork,testinternet){
+function testconn(testnetwork,testinternet,options){
 
   setTimeout(function() {
-
-
-
-
 
             netw.data().then(function(n){
               console.log(n)
@@ -113,13 +109,13 @@ client:function(testnetwork,testinternet){
     resolve({success:true,mode:'client'})
 
     if(testnetwork){
-      testconn(testnetwork,testinternet)
+      testconn(testnetwork,testinternet,options)
     }
   }).catch(function(err){
     resolve({success:true,mode:'client'})
 
     if(testnetwork){
-      testconn(testnetwork,testinternet)
+      testconn(testnetwork,testinternet,options)
     }
 
       })

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "hw": "git add -A && git commit -m 'oki'&&npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish",
-"patch": "npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish"
+    "patch": "npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
+    "promise": "^7.0.4",
     "promised-exec": "^1.0.1",
     "verbo": "0.0.9"
   }

@@ -106,17 +106,19 @@ client:function(testnetw,testint){
     var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+options.interface
 
   return exec(cmd).then(function(){
-    resolve({success:true,mode:'client'})
-
-    if(testnetwork){
+    if(testnetw){
       testconn(options,testint)
     }
+    resolve({success:true,mode:'client'})
+
+
   }).catch(function(err){
-    resolve({success:true,mode:'client'})
-
-    if(testnetwork){
+    if(testnetw){
       testconn(options,testint)
     }
+    resolve({success:true,mode:'client'})
+
+
 
       })
 

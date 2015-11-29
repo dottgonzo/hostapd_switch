@@ -38,9 +38,10 @@ function testconn(testnetwork,testinternet){
 
 
             netw.data().then(function(n){
+              console.log(n)
               for(ns=0;ns<n.networks.length;ns++){
                 if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
-
+console.log('RUNNING')
               if(testinternet){
                 testinternet().then(function(){
 
@@ -119,7 +120,7 @@ client:function(testnetwork,testinternet){
 
     if(testnetwork){
       testconn(testnetwork,testinternet)
-    } 
+    }
 
       })
 

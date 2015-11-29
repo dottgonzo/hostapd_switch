@@ -29,7 +29,37 @@ var options={};
 
 }
 
+function testconn(testnetwork,testinternet){
+  var promise = new Watcher({
+    counter: 10, // after that attempts promis will be rejected
+    interval: 10000 // interval in ms to trigger .progress callback
+  });
 
+  return promise
+    .progress(function (promise) {
+
+            netw.data().then(function(n){
+              for(ns=0;ns<n.networks.length;ns++){
+                if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+
+              if(testinternet){
+                testinternet().then(function(){
+                  promise.resolve({success:true,mode:'client',connected:true,internet:true})
+
+                })
+    } else{
+
+    promise.resolve{success:true,mode:'client',connected:true}
+
+    }
+    }
+    }
+            })
+
+
+
+              })
+}
 
 
 module.exports = {
@@ -70,62 +100,26 @@ client:function(testnetwork,testinternet){
 
   return exec(cmd).then(function(){
     if(testnetwork){
+      testconn(testnetwork,testinternet).then(function(answer){
+        resolve(answer)
 
-
-            netw.data().then(function(n){
-              for(ns=0;ns<n.networks.length;ns++){
-                if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
-
-              if(testinternet){
-                testinternet().then(function(){
-                  resolve({success:true,mode:'client',connected:true,internet:true})
-
-                }).catch(function(err){
-                  console.log(err)
-                  reject({error:'device is not connected'})
-
-                })
-} else{
-  resolve({success:true,mode:'client',connected:true})
-
-}
-} else{
-  reject({error:'device is not connected'})
-
-}
-}
-            })
-
+      })
+    } else {
+      resolve({success:true,mode:'client'})
 
     }
-  }).catch(function(){
+  }).catch(function(err){
+    if(testnetwork){
+      testconn(testnetwork,testinternet).then(function(answer){
+        resolve(answer)
 
-
-      netw.data().then(function(n){
-        for(ns=0;ns<n.networks.length;ns++){
-          if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
-
-        if(testinternet){
-          testinternet().then(function(){
-            resolve({success:true,mode:'client',connected:true,internet:true})
-
-          }).catch(function(){
-            reject({error:'device is not connected'})
-
-          })
-  } else{
-  resolve({success:true,mode:'client',connected:true})
-
-  }
-  } else{
-  reject({error:'device is not connected'})
-
-  }
-  }
       })
+    } else {
+      resolve({success:true,mode:'client'})
 
-    
-    })
+    }
+
+      })
 
   }).catch(function(err){
     verb(err,'error','hostapd_switch')

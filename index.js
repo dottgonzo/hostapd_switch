@@ -30,8 +30,7 @@ verb=require('verbo');
 
 
 
-var wswitch={
-
+module.exports = {
 configure:function(){
 console.log('ll')
 //return WlSwConf()
@@ -81,5 +80,3 @@ console.log('ll')
 // }
 
 };
-
-module.exports=wswitch

@@ -80,7 +80,8 @@ client:function(testnetwork,testinternet){
                 testinternet().then(function(){
                   resolve({success:true,mode:'client',connected:true,internet:true})
 
-                }).catch(function(){
+                }).catch(function(err){
+                  console.log(err)
                   reject({error:'device is not connected'})
 
                 })

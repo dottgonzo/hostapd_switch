@@ -2,14 +2,30 @@ var exec = require('promised-exec'),
 Promise=require('promise'),
 testinternet=require('promise-test-connection'),
 netw=require('netw'),
+pathExists=require('path-exists'),
 q=require('q'),
 verb=require('verbo');
 
 
-function WlSwConf(){
+function WlSwConf(wpasupplicant_path){
 
-  var options={};
   return new Promise(function(resolve,reject){
+    if(wpasupplicant_path){
+      var options={
+        wpasupplicant_path:wpasupplicant_path
+      };
+
+    } else{
+      var options={};
+
+    }
+
+    if(pathExists.sync(options.wpasupplicant_path)){
+
+    } else{
+      reject(err)
+
+    }
 
     exec('echo -n $(cat /etc/dnsmasq.conf|grep interface=|grep -v "#"|sed \'s/interface=//g\')').then(function(i){
       options.interface=i;
@@ -111,14 +127,14 @@ module.exports = {
     })
   },
 
-  client:function(testnetw,testint){
+  client:function(wpasupplicant_path,testnetw,testint){
 
     return new Promise(function(resolve,reject){
 
-      WlSwConf().then(function(options){
+      WlSwConf(wpasupplicant_path).then(function(options){
 
 
-        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+options.interface
+        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+wpasupplicant_path+' -D wext && dhclient'+options.interface
 
         return exec(cmd).then(function(){
           if(testnetw){

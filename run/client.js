@@ -2,7 +2,7 @@ var WlanSwitch=require('../index'),
 verb=require('verbo');
 
 WlanSwitch.client().then(function(options){
-  verb(options,'hostapd_switch')
+  verb(options,'info','hostapd_switch client')
 }).catch(function(err){
-  verb(err,'error','hostapd_switch')
+  verb(err,'error','hostapd_switch client')
 })

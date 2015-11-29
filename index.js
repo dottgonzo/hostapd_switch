@@ -31,7 +31,7 @@ var options={};
 
 
 module.exports = {
-configure:function(){
+settings:function(){
 
 return WlSwConf()
 },

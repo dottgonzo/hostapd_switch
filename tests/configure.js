@@ -1,7 +1,7 @@
-var WlanSwitch=require('../index'),
+var wswitch=require('../index'),
 verb=require('verbo');
 
-WlanSwitch.configure().then(function(options){
+wswitch.configure().then(function(options){
   verb(options,'hostapd_switch')
 
 }).catch(function(err){

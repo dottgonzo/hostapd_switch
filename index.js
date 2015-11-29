@@ -5,7 +5,7 @@ verb=require('verbo');
 
 function WlSwConf(){
 
-
+var options={};
     return new Promise(function(resolve,reject){
 
     exec('cat /etc/dnsmasq.conf|grep interface=|grep -v "#"|sed \'s/interface=//g\'').then(function(i){

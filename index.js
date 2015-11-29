@@ -43,7 +43,8 @@ ap:function(){
 
 
   var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.hostIp+' netmask 255.255.255.0 up'
-return exec(cmd).then(function(){
+console.log(cmd)
+ return exec(cmd).then(function(){
   resolve({success:true,mode:'ap'})
 }).catch(function(err){
   verb(err,'error','hostapd_switch')
@@ -65,7 +66,7 @@ client:function(){
 
     var cmd='ifconfig '+this.interface+' down && dhclient -r '+this.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+this.interface+' up && wpa_supplicant -B -i '+this.interface+' -c /etc/wpa_supplicant/wpa_supplicant.conf -D wext && dhclient'+this.interface
 
-
+console.log(cmd)
   return exec(cmd).then(function(){
     resolve({success:true,mode:'client'})
   }).catch(function(err){

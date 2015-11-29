@@ -97,9 +97,34 @@ client:function(testnetwork,testinternet){
 
           }, 20000)
     }
-  }).catch(function(err){
-    resolve({success:true,mode:'ap'})
-  })
+  }).catch(function(){
+    setTimeout(function () {
+
+      netw().then(function(n){
+        for(ns=0;ns<n.networks.length;ns++){
+          if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+
+        if(testinternet){
+          testinternet().then(function(){
+            resolve({success:true,mode:'client',connected:true,internet:true})
+
+          }).catch(function(){
+            reject({error:'device is not connected'})
+
+          })
+  } else{
+  resolve({success:true,mode:'client',connected:true})
+
+  }
+  } else{
+  reject({error:'device is not connected'})
+
+  }
+  }
+      })
+
+    }, 20000)
+    })
 
   }).catch(function(err){
     verb(err,'error','hostapd_switch')

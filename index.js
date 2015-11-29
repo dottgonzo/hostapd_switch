@@ -53,7 +53,7 @@ function testconn(testnetwork,testinternet){
                 })
     } else{
 
-    deferred.resolve{success:true,mode:'client',connected:true}
+    deferred.resolve({success:true,mode:'client',connected:true})
 
     }
   } else{

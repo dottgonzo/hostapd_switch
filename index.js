@@ -49,7 +49,7 @@ function testconn(testnetwork,testinternet){
                 })
     } else{
 
-    promise.resolve{success:true,mode:'client',connected:true}
+    promise.resolve({success:true,mode:'client',connected:true})
 
     }
     }

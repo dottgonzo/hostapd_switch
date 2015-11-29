@@ -30,11 +30,11 @@ var options={};
 
 
 
-module.exports=function(){
+var Wswitch=function(){
 
 configure:function(){
 return WlSwConf()
-};
+},
 
 ap:function(){
   return new Promise(function(resolve,reject){
@@ -54,7 +54,7 @@ return exec(cmd).then(function(){
 })
 
   })
-};
+},
 
 client:function(){
 
@@ -77,6 +77,8 @@ client:function(){
   })
 
     })
-};
+}
 
 }
+
+module.exports=Wswitch

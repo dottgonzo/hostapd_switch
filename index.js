@@ -32,7 +32,8 @@ verb=require('verbo');
 
 module.exports = {
 configure:function(){
-console.log('ll')
+console.log('ll');
+return 'g'
 //return WlSwConf()
 }
 //

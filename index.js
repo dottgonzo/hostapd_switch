@@ -12,7 +12,7 @@ var options={};
     options.interface=i;
 
     }).then(function(){
-      exec('echo $(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(1)}\').$(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(2)}\').$(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(3)}\').1').then(function(hostIp){
+      exec('echo -n $(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(1)}\').$(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(2)}\').$(cat /etc/dnsmasq.conf|grep dhcp-range|grep -v "#"|sed "s/dhcp-range=//g"|sed -s "s/,/ /g"|awk \'{print$(1)}\'| sed "s/\./ /g"|awk \'{print$(3)}\').1').then(function(hostIp){
         options.hostIp=hostIp
     resolve(options)
       }).catch(function(err){

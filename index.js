@@ -38,7 +38,7 @@ function testconn(options,testint){
               console.log(options)
 
               for(ns=0;ns<n.networks.length;ns++){
-                console.log(n.networks[ns])
+                console.log(n.networks[ns].dev,options.interface && n.networks[ns].connected)
 
 
 

@@ -52,9 +52,6 @@ console.log('RUNNING')
       verb({success:true,mode:'client',connected:true},'error','netw error')
 
     }
-  } else{
-    verb('not connected','error','netw error')
-
   }
     }
   }).catch(function(err){

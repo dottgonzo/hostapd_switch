@@ -44,7 +44,7 @@ console.log('RUNNING')
                   verb({success:true,mode:'client',connected:true,internet:true},'info','hostapd_switch')
 
                 }).catch(function(err){
-                  verb('not connected','error','netw error')
+                  verb(err,'error','netw error')
 
                 })
     } else{

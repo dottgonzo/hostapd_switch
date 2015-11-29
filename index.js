@@ -27,7 +27,7 @@ function WlSwConf(){
 
 }
 
-WlanSwitch function(){
+function WlanSwitch(){
 
 return WlSwConf()
 

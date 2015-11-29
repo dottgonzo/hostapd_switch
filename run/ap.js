@@ -3,7 +3,7 @@ verb=require('verbo');
 
 
 WlanSwitch.start().then(function(options){
-  console.log(options)
+  verb(options,'hostapd_switch')
 }).catch(function(err){
   verb(err,'error','hostapd_switch')
 })

@@ -95,7 +95,7 @@ client:function(testnetwork,testinternet){
 }
             })
 
-          }, 20000)
+          }, 50000)
     }
   }).catch(function(){
     setTimeout(function () {

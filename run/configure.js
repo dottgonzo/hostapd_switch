@@ -1,5 +1,5 @@
 WlanSwitch=require('../index');
 
-WlanSwitch().then(function(options){
+WlanSwitch.configure().then(function(options){
   console.log(options)
 })

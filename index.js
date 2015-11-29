@@ -72,7 +72,7 @@ client:function(testnetwork,testinternet){
     if(testnetwork){
           setTimeout(function () {
 
-            netw().then(function(n){
+            netw.data().then(function(n){
               for(ns=0;ns<n.networks.length;ns++){
                 if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
 
@@ -100,7 +100,7 @@ client:function(testnetwork,testinternet){
   }).catch(function(){
     setTimeout(function () {
 
-      netw().then(function(n){
+      netw.data().then(function(n){
         for(ns=0;ns<n.networks.length;ns++){
           if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
 

@@ -8,7 +8,9 @@ verb=require('verbo');
 
 
 function WlSwConf(wpasupplicant_path){
-
+if(!wpasupplicant_path){
+  wpasupplicant_path='/etc/wpa_supplicant/wpa_supplicant.conf'
+}
   return new Promise(function(resolve,reject){
     if(wpasupplicant_path){
       var options={
@@ -101,15 +103,15 @@ function testconn(options,testint){
 
 
 module.exports = {
-  settings:function(){
+  settings:function(wpasupplicant_path){
 
-    return WlSwConf()
+    return WlSwConf(wpasupplicant_path)
   },
 
-  ap:function(){
+  ap:function(wpasupplicant_path){
     return new Promise(function(resolve,reject){
 
-      WlSwConf().then(function(options){
+      WlSwConf(wpasupplicant_path).then(function(options){
 
 
         var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
@@ -117,7 +119,7 @@ module.exports = {
         return exec(cmd).then(function(){
           resolve({success:true,mode:'ap'})
         }).catch(function(err){
-          verb(err,'error','hostapd_switch')
+          verb(err,'error executing ap switch','hostapd_switch')
         })
 
       }).catch(function(err){

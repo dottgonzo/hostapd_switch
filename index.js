@@ -60,7 +60,7 @@ function testconn(options,testint){
       var dev=false
       for(ns=0;ns<n.networks.length;ns++){
         if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
-          var dev=true
+          dev=true
         }
       }
       if(!dev){

@@ -116,11 +116,11 @@ module.exports = {
         return exec(cmd).then(function(){
           resolve({success:true,mode:'ap'})
         }).catch(function(err){
-          verb(err,'error executing ap switch','hostapd_switch')
+          verb(err,'error','hostapd_switch executing ap switch')
         })
 
       }).catch(function(err){
-        verb(err,'error','hostapd_switch')
+        verb(err,'error','hostapd_switch conf')
       })
 
     })
@@ -162,7 +162,7 @@ module.exports = {
         })
 
       }).catch(function(err){
-        verb(err,'error','hostapd_switch')
+        verb(err,'error','hostapd_switch conf error')
       })
 
     })

@@ -7,25 +7,22 @@ q=require('q'),
 verb=require('verbo');
 
 
-function WlSwConf(wpasupplicant_path){
-if(!wpasupplicant_path){
-  wpasupplicant_path='/etc/wpa_supplicant/wpa_supplicant.conf'
-}
+function WlSwConf(conf){
+
   return new Promise(function(resolve,reject){
-    if(wpasupplicant_path){
-      var options={
-        wpasupplicant_path:wpasupplicant_path
-      };
+    if(conf&&conf.wpasupplicant_path){
+      var options=conf;
 
     } else{
-      var options={};
+      var options={
+          wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
+      };
 
     }
 
-    if(pathExists.sync(options.wpasupplicant_path)){
+    if(!pathExists.sync(options.wpasupplicant_path)){
 
-    } else{
-      reject(err)
+      reject('wpa_supplicant conf not specified')
 
     }
 
@@ -103,15 +100,15 @@ function testconn(options,testint){
 
 
 module.exports = {
-  settings:function(wpasupplicant_path){
+  settings:function(options){
 
-    return WlSwConf(wpasupplicant_path)
+    return WlSwConf(options)
   },
 
-  ap:function(wpasupplicant_path){
+  ap:function(conf){
     return new Promise(function(resolve,reject){
 
-      WlSwConf(wpasupplicant_path).then(function(options){
+      WlSwConf(conf).then(function(options){
 
 
         var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
@@ -129,11 +126,11 @@ module.exports = {
     })
   },
 
-  client:function(wpasupplicant_path,testnetw,testint){
+  client:function(conf,testnetw,testint){
 
     return new Promise(function(resolve,reject){
 
-      WlSwConf(wpasupplicant_path).then(function(options){
+      WlSwConf(conf).then(function(options){
 
 
         var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+wpasupplicant_path+' -D wext && dhclient'+options.interface

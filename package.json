@@ -29,7 +29,7 @@
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
-    "netw": "0.0.15",
+    "netw": "0.0.16",
     "path-exists": "^2.1.0",
     "promise": "^7.0.4",
     "promise-test-connection": "0.0.2",

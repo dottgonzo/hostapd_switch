@@ -56,7 +56,7 @@ var fun=function(){
     var ip=false
     var gw=false
     for(ns=0;ns<n.networks.length;ns++){
-      if(n.networks[ns].interface==options.interface && n.networks[ns].ip && n.networks[ns].gateway){
+      if(n.networks[ns].interface==options.interface){
         dev=true
         if(n.networks[ns].ip){
           ip=true
@@ -70,7 +70,7 @@ var fun=function(){
       reject('no device')
     } else if (!ip){
       reject(options.interface+' can\'t get an ip address')
-    } else if (!gateway){
+    } else if (!gw){
       reject(options.interface+' can\'t has no gateway')
     } else{
       if(testint){

@@ -48,7 +48,7 @@ function WlSwConf(conf){
 
 function testconn(options,testint){
 
-var fun=function(){
+var fun=function(options,testint){
   return new Promise(function(resolve,reject){
 
   netw.data().then(function(n){
@@ -91,7 +91,7 @@ var fun=function(){
 
 }
 
-waitfor.pre(fun,{
+waitfor.pre(fun(options,testint),{
   time:3000,
 timeout:40000
 })
@@ -133,7 +133,7 @@ module.exports = {
       WlSwConf(conf).then(function(options){
 
 
-        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient'+options.interface
+        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient'+options.interface;
 
         return exec(cmd).then(function(){
           if(testnetw){

@@ -52,8 +52,6 @@ var fun=function(){
   return new Promise(function(resolve,reject){
 
   netw().then(function(n){
-    console.log(n)
-    console.log(options,testint)
     var dev=false
     var ip=false
     var gw=false
@@ -89,7 +87,6 @@ var fun=function(){
         }
       }
     }
-    console.log('RUNNING')
 
   }).catch(function(err){
     reject(err)
@@ -138,8 +135,8 @@ module.exports = {
       WlSwConf(conf).then(function(options){
 
 
-        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
-console.log(cmd);
+        var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq; ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
+
         return exec(cmd).then(function(){
           if(testnetw){
             testconn(options,testint).then(function(answer){

@@ -91,7 +91,7 @@ var fun=function(options,testint){
 
 }
 
-return waitfor.pre(fun,{
+return waitfor.pre(fun(options,testint),{
   time:3000,
 timeout:40000
 })

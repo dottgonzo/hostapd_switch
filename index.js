@@ -52,18 +52,22 @@ var fun=function(){
   return new Promise(function(resolve,reject){
 
   netw().then(function(n){
-    var dev=false
-    var ip=false
-    var gw=false
+    var dev=false;
+    var ip=false;
+    var gw=false;
+    var externalIp=false;
     for(ns=0;ns<n.networks.length;ns++){
       if(n.networks[ns].interface==options.interface){
         dev=true
         if(n.networks[ns].ip){
-          ip=true
+          ip=n.networks[ns].ip
         }
         if(n.networks[ns].gateway){
-          gw=true
+          gw=[ns].gateway
         }
+        if(n.externalIp){
+          externalIp=n.externalIp
+}
       }
     }
     if(!dev){
@@ -75,15 +79,15 @@ var fun=function(){
     } else{
       if(testint){
         testinternet().then(function(){
-          resolve({success:true,mode:'client',connected:true,internet:true,externalIp:n.externalIp})
+          resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
         }).catch(function(err){
           reject(err)
         })
       } else{
-        if(n.externalIp){
-          resolve({success:true,mode:'client',connected:true,externalIp:n.externalIp})
+        if(externalIp){
+          resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
         } else{
-          resolve({success:true,mode:'client',connected:true})
+          resolve({mode:'client',ip:ip,gateway:gw})
         }
       }
     }
@@ -116,7 +120,7 @@ module.exports = {
         var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
 
         return exec(cmd).then(function(){
-          resolve({success:true,mode:'ap'})
+          resolve({mode:'ap'})
         }).catch(function(err){
           verb(err,'error','hostapd_switch executing ap switch')
         })

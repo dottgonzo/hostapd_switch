@@ -168,7 +168,6 @@ module.exports = {
 
 
             }).catch(function(err){
-              verb(err,'error','hostapd_switch exec')
               if(testnetw){
                 testconn(options,testint).then(function(answer){
                   resolve(answer)

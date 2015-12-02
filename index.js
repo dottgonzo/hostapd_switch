@@ -58,48 +58,46 @@ function testconn(options,testint){
       netw().then(function(n){
         console.log(n);
         console.log(options,testint);
-        // var dev=false;
-        // var ip=false;
-        // var gw=false;
-        // var externalIp=false;
-        // for(ns=0;ns<n.networks.length;ns++){
-        //   if(n.networks[ns].interface==options.interface){
-        //     dev=options.interface;
-        //     if(n.networks[ns].ip){
-        //       ip=n.networks[ns].ip
-        //     }
-        //     if(n.networks[ns].gateway){
-        //       gw=n.networks[ns].gateway
-        //     }
-        //     if(n.externalIp){
-        //       externalIp=n.externalIp
-        //     }
-        //   }
-        // }
-        // if(!dev){
-        //   reject('no interface')
-        // } else if (!ip){
-        //   reject(dev+' can\'t get an ip address')
-        // } else if (!gw){
-        //   reject(dev+' has no gateway')
-        // } else{
-        //   console.log(externalIp);
-        //   if(testint){
-        //     testinternet().then(function(){
-        //       console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
-        //
-        //       resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
-        //     }).catch(function(err){
-        //       reject(err)
-        //     })
-        //   } else{
-        //     if(externalIp){
-        //       resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
-        //     } else{
-        //       resolve({mode:'client',ip:ip,gateway:gw})
-        //     }
-        //   }
-        // }
+        var dev=false;
+        var ip=false;
+        var gw=false;
+
+        for(ns=0;ns<n.networks.length;ns++){
+          if(n.networks[ns].interface==options.interface){
+            dev=options.interface;
+            if(n.networks[ns].ip){
+              ip=n.networks[ns].ip
+            }
+            if(n.networks[ns].gateway){
+              gw=n.networks[ns].gateway
+            }
+
+
+          }
+        }
+        if(!dev){
+          reject('no interface')
+        } else if (!ip){
+          reject(dev+' can\'t get an ip address')
+        } else if (!gw){
+          reject(dev+' has no gateway')
+        } else{
+
+          if(testint){
+            testinternet().then(function(){
+              console.log({mode:'client',ip:ip,gateway:gw});
+
+              resolve({mode:'client',ip:ip,gateway:gw})
+            }).catch(function(err){
+              reject(err)
+            })
+          } else{
+
+
+              resolve({mode:'client',ip:ip,gateway:gw})
+
+          }
+        }
 
       }).catch(function(err){
         console.log('retrypromerr')
@@ -198,11 +196,10 @@ module.exports = {
 
             })
           } else{
-            if(n.externalIp){
-              resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
-            } else{
+
+
               resolve({mode:'client',ip:ip,gateway:gw})
-            }
+            
           }
 
         })

@@ -50,6 +50,8 @@ function testconn(options,testint){
 
 var fun=function(){
   console.log('retry')
+  console.log(options,testint);
+
   return new Promise(function(resolve,reject){
 
   netw().then(function(n){

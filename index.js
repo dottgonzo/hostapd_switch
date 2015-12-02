@@ -155,8 +155,9 @@ module.exports = {
   client:function(conf,testnetw,testint){
 
     return new Promise(function(resolve,reject){
-
       WlSwConf(conf).then(function(options){
+        console.log(conf,options.interface,testnetw,testint)
+
         netw().then(function(n){
           var todo=true;
           var ip=false;
@@ -171,7 +172,7 @@ module.exports = {
 if(todo){
 
 
-        var cmd='ifconfig '+options.interface+' down ; dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
+        var cmd='ifconfig '+options.interface+' down ; sleep 2 && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
 
         return exec(cmd).then(function(){
           if(testnetw){

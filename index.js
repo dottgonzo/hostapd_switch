@@ -139,7 +139,6 @@ module.exports = {
 
     return new Promise(function(resolve,reject){
       WlSwConf(conf).then(function(options){
-        console.log(conf,options.interface,testnetw,testint)
 
         netw().then(function(n){
           var todo=true;
@@ -169,7 +168,7 @@ module.exports = {
 
 
             }).catch(function(err){
-              verb(err,'error','hostapd_switch exec')
+              verb(err,'warn','hostapd_switch exec')
               if(testnetw){
                 testconn(options,testint).then(function(answer){
 

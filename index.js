@@ -55,7 +55,7 @@ var fun=function(){
   return new Promise(function(resolve,reject){
     console.log('retryprom')
 
-  netw().then(function(n){
+  return netw().then(function(n){
     console.log(n);
     console.log(options,testint);
 
@@ -105,6 +105,8 @@ var fun=function(){
     }
 
   }).catch(function(err){
+    console.log('retrypromerr')
+
     reject(err)
   })
 })

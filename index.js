@@ -51,51 +51,56 @@ function testconn(options,testint){
 var fun=function(){
   return new Promise(function(resolve,reject){
 
-  netw.data().then(function(n){
+  netw().then(function(n){
     console.log(n)
     console.log(options,testint)
     var dev=false
+    var ip=false
+    var gw=false
     for(ns=0;ns<n.networks.length;ns++){
-      if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+      if(n.networks[ns].interface==options.interface && n.networks[ns].ip && n.networks[ns].gateway){
         dev=true
+        if(n.networks[ns].ip){
+          ip=true
+        }
+        if(n.networks[ns].gateway){
+          gw=true
+        }
       }
     }
     if(!dev){
-
       reject('no device')
-
+    } else if (!ip){
+      reject(options.interface+' can\'t get an ip address')
+    } else if (!gateway){
+      reject(options.interface+' can\'t has no gateway')
     } else{
-
       if(testint){
         testinternet().then(function(){
-          resolve({success:true,mode:'client',connected:true,internet:true})
+          resolve({success:true,mode:'client',connected:true,internet:true,externalIp:n.externalIp})
         }).catch(function(err){
           reject(err)
         })
-
-
       } else{
-        resolve({success:true,mode:'client',connected:true})
+        if(n.externalIp){
+          resolve({success:true,mode:'client',connected:true,externalIp:n.externalIp})
+        } else{
+          resolve({success:true,mode:'client',connected:true})
+        }
       }
     }
     console.log('RUNNING')
 
-
-
   }).catch(function(err){
     reject(err)
-
-
   })
 })
-
 }
 
 return waitfor.pre(fun,{
   time:3000,
 timeout:40000
 })
-
 }
 
 

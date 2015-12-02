@@ -110,7 +110,7 @@ var fun=function(){
 }
 
 return waitfor.pre(fun,{
-  time:1000,
+  time:5000,
 timeout:40000
 })
 }

@@ -58,7 +58,7 @@ var fun=function(){
     var externalIp=false;
     for(ns=0;ns<n.networks.length;ns++){
       if(n.networks[ns].interface==options.interface){
-        dev=true
+        dev=options.interface
         if(n.networks[ns].ip){
           ip=n.networks[ns].ip
         }
@@ -71,11 +71,11 @@ var fun=function(){
       }
     }
     if(!dev){
-      reject('no device')
+      reject('no interface')
     } else if (!ip){
-      reject(options.interface+' can\'t get an ip address')
+      reject(dev+' can\'t get an ip address')
     } else if (!gw){
-      reject(options.interface+' can\'t has no gateway')
+      reject(dev+' can\'t has no gateway')
     } else{
       if(testint){
         testinternet().then(function(){

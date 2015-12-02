@@ -157,6 +157,18 @@ module.exports = {
     return new Promise(function(resolve,reject){
 
       WlSwConf(conf).then(function(options){
+        netw().then(function(n){
+          var todo=true;
+          var ip=false;
+          var gw=false;
+          for(ns=0;ns<n.networks.length;ns++){
+            if(n.networks[ns].interface==options.interface&&n.networks[ns].ip&&n.networks[ns].gateway){
+              todo=false;
+              ip=n.networks[ns].ip;
+              gw=n.networks[ns].gw;
+            }
+          }
+if(todo){
 
 
         var cmd='ifconfig '+options.interface+' down ; dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
@@ -186,7 +198,14 @@ module.exports = {
           }
 
 
-
+        })
+      } else{
+        if(n.externalIp){
+          resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
+        } else{
+          resolve({mode:'client',ip:ip,gateway:gw})
+        }
+      }
 
         })
 

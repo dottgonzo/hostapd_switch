@@ -16,7 +16,7 @@ function WlSwConf(conf){
 
     } else{
       var options={
-          wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
+        wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
       };
 
     }
@@ -48,74 +48,71 @@ function WlSwConf(conf){
 
 function testconn(options,testint){
 
-var fun=function(){
-  console.log('retry')
-  console.log(options,testint);
-
-  return new Promise(function(resolve,reject){
-    console.log('retryprom')
-
-  netw().then(function(n){
-    console.log(n);
+  var fun=function(){
+    console.log('retry')
     console.log(options,testint);
 
+    return new Promise(function(resolve,reject){
+      console.log('retryprom')
 
-
-    var dev=false;
-    var ip=false;
-    var gw=false;
-    var externalIp=false;
-    for(ns=0;ns<n.networks.length;ns++){
-      if(n.networks[ns].interface==options.interface){
-        dev=options.interface
-        if(n.networks[ns].ip){
-          ip=n.networks[ns].ip
+      netw().then(function(n){
+        console.log(n);
+        console.log(options,testint);
+        var dev=false;
+        var ip=false;
+        var gw=false;
+        var externalIp=false;
+        for(ns=0;ns<n.networks.length;ns++){
+          if(n.networks[ns].interface==options.interface){
+            dev=options.interface;
+            if(n.networks[ns].ip){
+              ip=n.networks[ns].ip
+            }
+            if(n.networks[ns].gateway){
+              gw=n.networks[ns].gateway
+            }
+            if(n.externalIp){
+              externalIp=n.externalIp
+            }
+          }
         }
-        if(n.networks[ns].gateway){
-          gw=n.networks[ns].gateway
-        }
-        if(n.externalIp){
-          externalIp=n.externalIp
-}
-      }
-    }
-    if(!dev){
-      reject('no interface')
-    } else if (!ip){
-      reject(dev+' can\'t get an ip address')
-    } else if (!gw){
-      reject(dev+' has no gateway')
-    } else{
-      console.log(externalIp);
-      if(testint){
-        testinternet().then(function(){
-          console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
-
-          resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
-        }).catch(function(err){
-          reject(err)
-        })
-      } else{
-        if(externalIp){
-          resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+        if(!dev){
+          reject('no interface')
+        } else if (!ip){
+          reject(dev+' can\'t get an ip address')
+        } else if (!gw){
+          reject(dev+' has no gateway')
         } else{
-          resolve({mode:'client',ip:ip,gateway:gw})
+          console.log(externalIp);
+          if(testint){
+            testinternet().then(function(){
+              console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
+
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+            }).catch(function(err){
+              reject(err)
+            })
+          } else{
+            if(externalIp){
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+            } else{
+              resolve({mode:'client',ip:ip,gateway:gw})
+            }
+          }
         }
-      }
-    }
 
-  }).catch(function(err){
-    console.log('retrypromerr')
+      }).catch(function(err){
+        console.log('retrypromerr')
 
-    reject(err)
+        reject(err)
+      })
+    })
+  }
+
+  return waitfor.pre(fun,{
+    time:5000,
+    timeout:40000
   })
-})
-}
-
-return waitfor.pre(fun,{
-  time:5000,
-timeout:40000
-})
 }
 
 
@@ -136,11 +133,11 @@ module.exports = {
         return exec(cmd).then(function(){
           netw().then(function(n){
 
-          resolve({mode:'ap'})
-        }).catch(function(){
-          verb(err,'error','hostapd_switch->netw')
+            resolve({mode:'ap'})
+          }).catch(function(){
+            verb(err,'error','hostapd_switch->netw')
 
-        })
+          })
         }).catch(function(err){
           verb(err,'error','hostapd_switch executing ap switch')
         })
@@ -169,44 +166,44 @@ module.exports = {
               gw=n.networks[ns].gateway;
             }
           }
-if(todo){
+          if(todo){
 
 
-        var cmd='ifconfig '+options.interface+' down ; sleep 2 && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
+            var cmd='ifconfig '+options.interface+' down ; sleep 2 && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
 
-        return exec(cmd).then(function(){
-          if(testnetw){
-            testconn(options,testint).then(function(answer){
-              resolve(answer)
+            return exec(cmd).then(function(){
+              if(testnetw){
+                testconn(options,testint).then(function(answer){
+                  resolve(answer)
+                }).catch(function(err){
+                  reject(err)
+
+                })
+              }
+
+
             }).catch(function(err){
-              reject(err)
+              verb(err,'error','hostapd_switch exec')
+              if(testnetw){
+                testconn(options,testint).then(function(answer){
+
+
+                  resolve(answer)
+                }).catch(function(err){
+                  reject(err)
+
+                })
+              }
+
 
             })
+          } else{
+            if(n.externalIp){
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
+            } else{
+              resolve({mode:'client',ip:ip,gateway:gw})
+            }
           }
-
-
-        }).catch(function(err){
-          verb(err,'error','hostapd_switch exec')
-          if(testnetw){
-            testconn(options,testint).then(function(answer){
-
-
-              resolve(answer)
-            }).catch(function(err){
-              reject(err)
-
-            })
-          }
-
-
-        })
-      } else{
-        if(n.externalIp){
-          resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
-        } else{
-          resolve({mode:'client',ip:ip,gateway:gw})
-        }
-      }
 
         })
 

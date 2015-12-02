@@ -53,7 +53,7 @@ var fun=function(options,testint){
 
   netw.data().then(function(n){
     console.log(n)
-    console.log(options)
+    console.log(options,testint)
     var dev=false
     for(ns=0;ns<n.networks.length;ns++){
       if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
@@ -91,7 +91,7 @@ var fun=function(options,testint){
 
 }
 
-waitfor.pre(fun(options,testint),{
+return waitfor.pre(fun(options,testint),{
   time:3000,
 timeout:40000
 })

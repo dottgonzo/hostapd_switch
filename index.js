@@ -59,7 +59,7 @@ var fun=function(){
     console.log(n);
     console.log(options,testint);
 
-    console.log(n.externalIp);
+
 
     var dev=false;
     var ip=false;

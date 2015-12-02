@@ -105,7 +105,7 @@ function testconn(options,testint){
   }
 
   return waitfor.pre(fun,{
-    time:5000,
+    time:1000,
     timeout:40000
   })
 }
@@ -177,7 +177,7 @@ module.exports = {
 
                 })
               }
-              
+
             })
           } else{
             resolve({mode:'client',ip:ip,gateway:gw})

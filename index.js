@@ -49,15 +49,8 @@ function WlSwConf(conf){
 function testconn(options,testint){
 
   var fun=function(){
-    console.log('retry')
-    console.log(options,testint);
-
     return new Promise(function(resolve,reject){
-      console.log('retryprom')
-
       netw().then(function(n){
-        console.log(n);
-        console.log(options,testint);
         var dev=false;
         var ip=false;
         var gw=false;
@@ -83,12 +76,13 @@ function testconn(options,testint){
         } else if (!gw){
           reject(dev+' has no gateway')
         } else{
-          console.log(externalIp);
           if(testint){
             testinternet().then(function(){
-              console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
-
-              resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+              if(externalIp){
+                resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+              } else{
+                resolve({mode:'client',ip:ip,gateway:gw})
+              }
             }).catch(function(err){
               reject(err)
             })
@@ -102,8 +96,6 @@ function testconn(options,testint){
         }
 
       }).catch(function(err){
-        console.log('retrypromerr')
-
         reject(err)
       })
     })

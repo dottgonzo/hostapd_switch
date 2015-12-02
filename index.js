@@ -2,6 +2,7 @@ var exec = require('promised-exec'),
 Promise=require('promise'),
 testinternet=require('promise-test-connection'),
 netw=require('netw'),
+waitfor=require('waitfor-promise'),
 pathExists=require('path-exists'),
 q=require('q'),
 verb=require('verbo');
@@ -46,55 +47,54 @@ function WlSwConf(conf){
 }
 
 function testconn(options,testint){
-  var deferred = q.defer();
 
+var fun=function(){
+  return new Promise(function(resolve,reject){
 
-
-
-  setTimeout(function() {
-
-    netw.data().then(function(n){
-      console.log(n)
-      console.log(options)
-      var dev=false
-      for(ns=0;ns<n.networks.length;ns++){
-        if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
-          dev=true
-        }
+  netw.data().then(function(n){
+    console.log(n)
+    console.log(options)
+    var dev=false
+    for(ns=0;ns<n.networks.length;ns++){
+      if(n.networks[ns].dev==options.interface && n.networks[ns].connected){
+        dev=true
       }
-      if(!dev){
+    }
+    if(!dev){
 
-        deferred.reject('no device')
+      reject('no device')
+
+    } else{
+
+      if(testint){
+        testinternet().then(function(){
+          resolve({success:true,mode:'client',connected:true,internet:true})
+        }).catch(function(err){
+          reject(err)
+        })
+
 
       } else{
-
-        if(testint){
-          testinternet().then(function(){
-            deferred.resolve({success:true,mode:'client',connected:true,internet:true})
-          }).catch(function(err){
-            deferred.reject(err)
-          })
-
-
-        } else{
-          deferred.resolve({success:true,mode:'client',connected:true})
-        }
+        resolve({success:true,mode:'client',connected:true})
       }
-      console.log('RUNNING')
+    }
+    console.log('RUNNING')
 
 
 
-    }).catch(function(err){
-      deferred.reject(err)
+  }).catch(function(err){
+    reject(err)
 
 
-    })
+  })
+})
 
-  }, 30000);
+}
 
-
-  return deferred.promise;
-
+waitfor.pre(fun,{
+  time:3000,
+timeout:40000
+})
 
 }
 

@@ -68,7 +68,7 @@ var fun=function(){
           ip=n.networks[ns].ip
         }
         if(n.networks[ns].gateway){
-          gw=[ns].gateway
+          gw=n.networks[ns].gateway
         }
         if(n.externalIp){
           externalIp=n.externalIp

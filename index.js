@@ -53,6 +53,7 @@ var fun=function(){
   console.log(options,testint);
 
   return new Promise(function(resolve,reject){
+    console.log('retryprom')
 
   netw().then(function(n){
     console.log(n);

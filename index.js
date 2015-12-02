@@ -49,18 +49,19 @@ function WlSwConf(conf){
 function testconn(options,testint){
 
   var fun=function(){
-
-
+    console.log('retry')
+    console.log(options,testint);
 
     return new Promise(function(resolve,reject){
-
+      console.log('retryprom')
 
       netw().then(function(n){
-
+        console.log(n);
+        console.log(options,testint);
         var dev=false;
         var ip=false;
         var gw=false;
-
+        var externalIp=false;
         for(ns=0;ns<n.networks.length;ns++){
           if(n.networks[ns].interface==options.interface){
             dev=options.interface;
@@ -70,8 +71,9 @@ function testconn(options,testint){
             if(n.networks[ns].gateway){
               gw=n.networks[ns].gateway
             }
-
-
+            if(n.externalIp){
+              externalIp=n.externalIp
+            }
           }
         }
         if(!dev){
@@ -81,31 +83,34 @@ function testconn(options,testint){
         } else if (!gw){
           reject(dev+' has no gateway')
         } else{
-
+          console.log(externalIp);
           if(testint){
             testinternet().then(function(){
-              console.log({mode:'client',ip:ip,gateway:gw});
+              console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
 
-              resolve({mode:'client',ip:ip,gateway:gw})
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
             }).catch(function(err){
               reject(err)
             })
           } else{
-
-
-            resolve({mode:'client',ip:ip,gateway:gw})
-
+            if(externalIp){
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
+            } else{
+              resolve({mode:'client',ip:ip,gateway:gw})
+            }
           }
         }
 
       }).catch(function(err){
+        console.log('retrypromerr')
+
         reject(err)
       })
     })
   }
 
   return waitfor.pre(fun,{
-    time:1000,
+    time:5000,
     timeout:40000
   })
 }
@@ -121,6 +126,8 @@ module.exports = {
     return new Promise(function(resolve,reject){
 
       WlSwConf(conf).then(function(options){
+
+
         var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
 
         return exec(cmd).then(function(){
@@ -140,6 +147,7 @@ module.exports = {
 
     return new Promise(function(resolve,reject){
       WlSwConf(conf).then(function(options){
+        console.log(conf,options.interface,testnetw,testint)
 
         netw().then(function(n){
           var todo=true;
@@ -153,6 +161,7 @@ module.exports = {
             }
           }
           if(todo){
+
 
             var cmd='ifconfig '+options.interface+' down ; sleep 2 && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient '+options.interface;
 
@@ -168,8 +177,11 @@ module.exports = {
 
 
             }).catch(function(err){
+              verb(err,'error','hostapd_switch exec')
               if(testnetw){
                 testconn(options,testint).then(function(answer){
+
+
                   resolve(answer)
                 }).catch(function(err){
                   reject(err)
@@ -177,15 +189,22 @@ module.exports = {
                 })
               }
 
+
             })
           } else{
-            resolve({mode:'client',ip:ip,gateway:gw})
+            if(n.externalIp){
+              resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
+            } else{
+              resolve({mode:'client',ip:ip,gateway:gw})
+            }
           }
+
         })
 
       }).catch(function(err){
         verb(err,'error','hostapd_switch conf error')
       })
+
     })
   }
 

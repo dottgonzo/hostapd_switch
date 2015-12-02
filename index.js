@@ -52,6 +52,10 @@ var fun=function(){
   return new Promise(function(resolve,reject){
 
   netw().then(function(n){
+    console.log(n);
+
+    console.log(n.externalIp);
+
     var dev=false;
     var ip=false;
     var gw=false;

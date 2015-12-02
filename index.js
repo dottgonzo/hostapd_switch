@@ -53,6 +53,7 @@ var fun=function(){
 
   netw().then(function(n){
     console.log(n);
+    console.log(options,testint);
 
     console.log(n.externalIp);
 

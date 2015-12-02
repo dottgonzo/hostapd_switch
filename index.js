@@ -48,7 +48,7 @@ function WlSwConf(conf){
 
 function testconn(options,testint){
 
-var fun=function(options,testint){
+var fun=function(){
   return new Promise(function(resolve,reject){
 
   netw.data().then(function(n){
@@ -91,7 +91,7 @@ var fun=function(options,testint){
 
 }
 
-return waitfor.pre(fun(options,testint),{
+return waitfor.pre(fun,{
   time:3000,
 timeout:40000
 })

@@ -166,7 +166,7 @@ module.exports = {
             if(n.networks[ns].interface==options.interface&&n.networks[ns].ip&&n.networks[ns].gateway){
               todo=false;
               ip=n.networks[ns].ip;
-              gw=n.networks[ns].gw;
+              gw=n.networks[ns].gateway;
             }
           }
 if(todo){

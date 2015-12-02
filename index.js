@@ -91,7 +91,7 @@ var fun=function(options,testint){
 
 }
 
-return waitfor.pre(fun(options,testint),{
+return waitfor.pre(fun,{
   time:3000,
 timeout:40000
 })
@@ -134,7 +134,7 @@ module.exports = {
 
 
         var cmd='ifconfig '+options.interface+' down && dhclient -r '+options.interface+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+options.interface+' up && wpa_supplicant -B -i '+options.interface+' -c '+options.wpasupplicant_path+' -D wext && dhclient'+options.interface;
-
+console.log(cmd);
         return exec(cmd).then(function(){
           if(testnetw){
             testconn(options,testint).then(function(answer){

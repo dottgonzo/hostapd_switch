@@ -75,10 +75,13 @@ var fun=function(){
     } else if (!ip){
       reject(dev+' can\'t get an ip address')
     } else if (!gw){
-      reject(dev+' can\'t has no gateway')
+      reject(dev+' has no gateway')
     } else{
+      console.log(externalIp);
       if(testint){
         testinternet().then(function(){
+          console.log({mode:'client',ip:ip,gateway:gw,externalIp:externalIp});
+
           resolve({mode:'client',ip:ip,gateway:gw,externalIp:externalIp})
         }).catch(function(err){
           reject(err)
@@ -120,7 +123,13 @@ module.exports = {
         var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+options.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+options.interface+' '+options.hostIp+' netmask 255.255.255.0 up'
 
         return exec(cmd).then(function(){
+          netw().then(function(n){
+
           resolve({mode:'ap'})
+        }).catch(function(){
+          verb(err,'error','hostapd_switch->netw')
+
+        })
         }).catch(function(err){
           verb(err,'error','hostapd_switch executing ap switch')
         })

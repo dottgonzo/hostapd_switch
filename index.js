@@ -87,8 +87,8 @@ function HAPDSW(options,init){
   config.hostapd={
     interface:config.interface
   }
-    config.dnsmasq={
-      interface:config.interface
+  config.dnsmasq={
+    interface:config.interface
   }
 
   merge(config,options)
@@ -105,7 +105,7 @@ function HAPDSW(options,init){
   }
 
 
-this.config=config;
+  this.config=config;
 
   this.dnsmasq=new dnsmasqconf(config.dnsmasq);
 
@@ -126,17 +126,18 @@ HAPDSW.prototype.host=function(){
   var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
     exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination '+hostIp+':'+redirect_port+' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination '+hostIp+':'+redirect_port).then(function(){
-    dnsmasq.setmode('host').then(function(){
-      exec(cmd).then(function(){
-        resolve({mode:'host',ip:hostIp})
+      dnsmasq.setmode('host').then(function(){
+        exec(cmd).then(function(){
+          resolve({mode:'host',ip:hostIp})
+        }).catch(function(err){
+          verb(err,'error','hostapd_switch executing host switch')
+        })
       }).catch(function(err){
-        verb(err,'error','hostapd_switch executing host switch')
+        verb(err,'error','hostapd_switch dnsmasq host switch')
       })
     }).catch(function(err){
-      verb(err,'error','hostapd_switch dnsmasq host switch')
+      verb(err,'error','hostapd_switch executing ipfilter host switch')
     })
-  }).catch(function(err){
-    verb(err,'error','hostapd_switch executing ipfilter host switch')
   })
 },
 
@@ -212,10 +213,10 @@ HAPDSW.prototype.client=function(testnetw,testint){
         }
       }
 
-  }).catch(function(err){
-    verb(err,'error','hostapd_switch conf error')
+    }).catch(function(err){
+      verb(err,'error','hostapd_switch conf error')
+    })
   })
-})
 
 };
 module.exports = HAPDSW

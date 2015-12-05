@@ -77,37 +77,39 @@ function testconn(d,testint){
 
 function HAPDSW(options,init){
 
+
   var config={
-    hostapd_path:'/etc/hostapd/hostapd.conf', // only to show this is default in hostapdapp
-    dnsmasq_path:'/etc/dnsmasq.conf', // only to show this is default in dnsmasqapp
+    interface:'wlan0',
     wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
   }
+
+  config.hostapd={
+    interface:config.interface
+  }
+    config.dnsmasq={
+      interface:config.interface
+  }
+
   merge(options,config)
+
+
   if(!pathExists.sync('/etc/default/hostapd')){
     throw Error('no default conf file was founded for hostapd')
   }
-  if(!options || typeof(options)!='object'){
-    throw Error('Type Error, provide a valid json object')
-  }
-  if(!options.interface){
-    throw Error('No configuration interface was provided')
-  }
-  if(!options.ssid){
+  if(!options.hostapd.ssid){
     throw Error('No ssid was provided')
   }
-  if(!options.wpa_passphrase){
+  if(!options.hostapd.wpa_passphrase){
     throw Error('No wpa_passphrase was provided')
   }
-  for(var c=0;c<Object.keys(options).length;c++){
-    this[Object.keys(options)[c]]=options[Object.keys(options)[c]];
-  }
-  options.path=options.dnsmasq_path;
 
-  this.dnsmasq=new dnsmasqconf(options);
+
+this.config=options;
+
+  this.dnsmasq=new dnsmasqconf(options.dnsmasq);
 
   if(init){
-    options.path=options.hostapd_path;
-    hostapdconf(options).then(function(){
+    hostapdconf(options.hostapd).then(function(){
       console.log('hostapd is now configured')
     })
   }
@@ -117,7 +119,7 @@ function HAPDSW(options,init){
 
 HAPDSW.prototype.host=function(){
 
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.config.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
 
   return new Promise(function(resolve,reject){
 
@@ -138,9 +140,9 @@ HAPDSW.prototype.host=function(){
 },
 
 HAPDSW.prototype.ap=function(){
-  var hostIp=this.dnsmasq.host;
+  var hostIp=this.config.dnsmasq.host;
   var dnsmasq=this.dnsmasq;
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+hostIp+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
     dnsmasq.ap().then(function(){
       exec(cmd).then(function(){
@@ -156,8 +158,8 @@ HAPDSW.prototype.ap=function(){
 
 HAPDSW.prototype.client=function(testnetw,testint){
 
-  var dev=this.interface;
-  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.wpasupplicant_path+' -D wext && dhclient '+dev;
+  var dev=this.config.interface;
+  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.config.wpasupplicant_path+' -D wext && dhclient '+dev;
 
   return new Promise(function(resolve,reject){
 

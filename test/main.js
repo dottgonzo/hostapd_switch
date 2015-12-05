@@ -1,13 +1,19 @@
 var assert    = require("chai").assert,
 WlanSwitch=require('../index'),
 verb=require('verbo');
-var config={
-  test:true,
-interface:'wlan0',
-ssid:'testap',
-wpa_passphrase:'testpass'
+var conf={
+  interface:'wlan0',
+  hostapd:{
+    driver:'rtl871xdrv',
+  ssid:'testap',
+  wpa_passphrase:'testpass',
+  test:true
+},
+dnsmasq:{
+  test:true
 }
-var json=new WlanSwitch(config)
+}
+var json=new WlanSwitch(conf)
 console.log(json)
 describe('Status Object', function() {
   describe('check json', function () {
@@ -19,9 +25,12 @@ describe('Status Object', function() {
 
     })
     it('validate interface', function(){
-        assert.isString(json.interface);
+        assert.isString(json.config.interface);
     })
     it('validate dnsmasq', function(){
+      assert.isObject(json.dnsmasq);
+    })
+    it('validate hostapd', function(){
       assert.isObject(json.dnsmasq);
     })
   });

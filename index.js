@@ -63,7 +63,7 @@ function testconn(d,testint){
         }
 
       }).catch(function(err){
-        reject(err)
+        reject('netw'+err)
       })
     })
   }

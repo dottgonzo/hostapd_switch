@@ -7,7 +7,7 @@ interface:'wlan0',
 ssid:'testap',
 wpa_passphrase:'testpass'
 }
-var WS=new WlanSwitch(conf)
+var WS=new WlanSwitch(conf,true)
 console.log(WS)
 
 WS.ap().then(function(options){

@@ -91,26 +91,26 @@ function HAPDSW(options,init){
       interface:config.interface
   }
 
-  merge(options,config)
+  merge(config,options)
 
 
   if(!pathExists.sync('/etc/default/hostapd')){
     throw Error('no default conf file was founded for hostapd')
   }
-  if(!options.hostapd.ssid){
+  if(!config.hostapd.ssid){
     throw Error('No ssid was provided')
   }
-  if(!options.hostapd.wpa_passphrase){
+  if(!config.hostapd.wpa_passphrase){
     throw Error('No wpa_passphrase was provided')
   }
 
 
-this.config=options;
+this.config=config;
 
-  this.dnsmasq=new dnsmasqconf(options.dnsmasq);
+  this.dnsmasq=new dnsmasqconf(config.dnsmasq);
 
   if(init){
-    hostapdconf(options.hostapd).then(function(){
+    hostapdconf(config.hostapd).then(function(){
       console.log('hostapd is now configured')
     })
   }

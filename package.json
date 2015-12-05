@@ -1,6 +1,6 @@
 {
   "name": "hostapd_switch",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Utility to easy switch between client mode and ap mode. ",
   "main": "index.js",
   "scripts": {

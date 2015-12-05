@@ -140,8 +140,8 @@ HAPDSW.prototype.host=function(){
 },
 
 HAPDSW.prototype.ap=function(){
-  var hostIp=this.config.dnsmasq.host;
   var dnsmasq=this.dnsmasq;
+  var hostIp=dnsmasq.host;
   var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
     dnsmasq.ap().then(function(){

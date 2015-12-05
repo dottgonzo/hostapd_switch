@@ -80,7 +80,8 @@ function HAPDSW(options,init){
 
   var config={
     interface:'wlan0',
-    wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
+    wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf',
+    redirect:80
   }
 
   config.hostapd={
@@ -120,12 +121,13 @@ this.config=options;
 
 HAPDSW.prototype.host=function(){
   var dnsmasq=this.dnsmasq;
+  var redirect_port=this.config.redirect;
   var hostIp=dnsmasq.host;
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up && iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination '+hostIp+':'+redirect_port+' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination '+hostIp+':'+redirect_port
   return new Promise(function(resolve,reject){
     dnsmasq.setmode('host').then(function(){
       exec(cmd).then(function(){
-        resolve({mode:'ap',ip:hostIp})
+        resolve({mode:'host',ip:hostIp})
       }).catch(function(err){
         verb(err,'error','hostapd_switch executing host switch')
       })

@@ -29,7 +29,7 @@
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
-    "dnsmasq-conf": "0.0.3",
+    "dnsmasq-conf": "0.0.5",
     "hostapdjs": "0.0.2",
     "json-add": "0.0.1",
     "netw": "0.0.18",

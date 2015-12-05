@@ -173,7 +173,7 @@ HAPDSW.prototype.client=function(testnetw,testint){
         }
       }
       if(todo){
-        return exec(cmd).then(function(){
+        exec(cmd).then(function(){
           if(testnetw){
             testconn(dev,testint).then(function(answer){
               resolve(answer)

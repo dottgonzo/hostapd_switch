@@ -123,7 +123,7 @@ HAPDSW.prototype.host=function(){
   var hostIp=dnsmasq.host;
   var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
-    dnsmasq.ap().then(function(){
+    dnsmasq.setmode('host').then(function(){
       exec(cmd).then(function(){
         resolve({mode:'ap',ip:hostIp})
       }).catch(function(err){

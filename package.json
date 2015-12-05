@@ -29,6 +29,9 @@
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
+    "dnsmasq-conf": "0.0.3",
+    "hostapdjs": "0.0.2",
+    "json-add": "0.0.1",
     "netw": "0.0.18",
     "path-exists": "^2.1.0",
     "promise": "^7.0.4",
@@ -36,5 +39,9 @@
     "promised-exec": "^1.0.1",
     "verbo": "0.0.9",
     "waitfor-promise": "0.0.3"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
   }
 }

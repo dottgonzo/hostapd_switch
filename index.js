@@ -204,11 +204,11 @@ HAPDSW.prototype.client=function(testnetw,testint){
           resolve({mode:'client',ip:ip,gateway:gw})
         }
       }
-    })
+
   }).catch(function(err){
     verb(err,'error','hostapd_switch conf error')
   })
-
+})
 
 };
 module.exports = HAPDSW

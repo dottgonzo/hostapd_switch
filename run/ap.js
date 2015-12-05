@@ -5,7 +5,7 @@ var conf={
   interface:'wlan0',
   hostapd:{
     driver:'rtl871xdrv',
-  ssid:'testap',
+  ssid:'testttap',
   wpa_passphrase:'testpass'
 }
 }

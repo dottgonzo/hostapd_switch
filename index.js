@@ -76,7 +76,7 @@ function testconn(d,testint){
 
 
 function HAPDSW(options,init){
-  var dnsmasq;
+
   var config={
     hostapd_path:'/etc/hostapd/hostapd.conf', // only to show this is default in hostapdapp
     dnsmasq_path:'/etc/dnsmasq.conf', // only to show this is default in dnsmasqapp

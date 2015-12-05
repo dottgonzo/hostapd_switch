@@ -1,14 +1,17 @@
 var WlanSwitch=require('../index'),
 verb=require('verbo');
 
-var config={
-wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf'
+var conf={
+  test:false,
+interface:'wlan0',
+ssid:'testap',
+wpa_passphrase:'testpass'
 }
+var WS=new WlanSwitch(conf)
+console.log(WS)
 
-var WS=WlanSwitch(config)
-
-WS.ap().then(function(options){
-  verb(options,'info','hostapd_switch ap')
+WS.host().then(function(options){
+  verb(options,'info','hostapd_switch host')
 }).catch(function(err){
-  verb(err,'error','hostapd_switch ap')
+  verb(err,'error','hostapd_switch host')
 })

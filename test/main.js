@@ -2,7 +2,7 @@ var assert    = require("chai").assert,
 WlanSwitch=require('../index'),
 verb=require('verbo');
 var config={
-  test:false,
+  test:true,
 interface:'wlan0',
 ssid:'testap',
 wpa_passphrase:'testpass'

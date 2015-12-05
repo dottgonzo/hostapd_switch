@@ -128,11 +128,11 @@ HAPDSW.prototype.host=function(){
     dnsmasq.setmode('host').then(function(){
 
         exec(cmd).then(function(){
-                exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination '+hostIp+':'+redirect_port+' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination '+hostIp+':'+redirect_port).then(function(){
+            //    exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination '+hostIp+':'+redirect_port+' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination '+hostIp+':'+redirect_port).then(function(){
           resolve({mode:'host',ip:hostIp})
-        }).catch(function(err){
-          verb(err,'error','hostapd_switch ipfilter host switch')
-        })
+      //  }).catch(function(err){
+      //    verb(err,'error','hostapd_switch ipfilter host switch')
+      //  })
       }).catch(function(err){
         verb(err,'error','hostapd_switch executing host switch')
       })

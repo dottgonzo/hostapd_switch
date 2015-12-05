@@ -117,27 +117,24 @@ this.config=options;
 
 
 
+
 HAPDSW.prototype.host=function(){
-
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.config.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
-
+  var dnsmasq=this.dnsmasq;
+  var hostIp=dnsmasq.host;
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
-
-
-    // iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination localhost:3000
-    // iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination localhost:3000
-
-
-    return exec(cmd).then(function(){
-      resolve({mode:'ap',ip:options.hostIp})
+    dnsmasq.host().then(function(){
+      exec(cmd).then(function(){
+        resolve({mode:'ap',ip:hostIp})
+      }).catch(function(err){
+        verb(err,'error','hostapd_switch executing ap switch')
+      })
     }).catch(function(err){
       verb(err,'error','hostapd_switch executing ap switch')
     })
-
-
-
   })
 },
+
 
 HAPDSW.prototype.ap=function(){
   var dnsmasq=this.dnsmasq;

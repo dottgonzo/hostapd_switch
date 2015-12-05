@@ -137,12 +137,13 @@ HAPDSW.prototype.host=function(){
   })
 },
 
-HAPDSW.prototype.ap=function(conf){
-  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
+HAPDSW.prototype.ap=function(){
+  var hostIp=this.dnsmasq.host;
+  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+hostIp+' netmask 255.255.255.0 up'
 
   return new Promise(function(resolve,reject){
     exec(cmd).then(function(){
-      resolve({mode:'ap',ip:options.hostIp})
+      resolve({mode:'ap',ip:hostIp})
     }).catch(function(err){
       verb(err,'error','hostapd_switch executing ap switch')
     })

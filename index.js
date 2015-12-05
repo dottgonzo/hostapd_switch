@@ -157,7 +157,7 @@ HAPDSW.prototype.ap=function(){
 HAPDSW.prototype.client=function(testnetw,testint){
 
   var dev=this.interface;
-  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.wpasupplicant_path+' -D wext && dhclient '+dev;
+  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.wpasupplicant_path+' -D wext && dhclient '+dev;
 
   return new Promise(function(resolve,reject){
 

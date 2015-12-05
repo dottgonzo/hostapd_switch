@@ -3,6 +3,7 @@ verb=require('verbo');
 
 var conf={
   test:false,
+  driver:'rtl871xdrv',
 interface:'wlan0',
 ssid:'testap',
 wpa_passphrase:'testpass'

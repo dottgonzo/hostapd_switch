@@ -3,6 +3,7 @@ verb=require('verbo');
 
 var conf={
   interface:'wlan0',
+  redirect:4000,
   hostapd:{
     driver:'rtl871xdrv',
   ssid:'testttap',

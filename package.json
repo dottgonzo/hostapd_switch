@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "dnsmasq-conf": "0.0.5",
-    "hostapdjs": "0.0.2",
+    "hostapdjs": "0.0.3",
     "json-add": "0.0.1",
     "netw": "0.0.18",
     "path-exists": "^2.1.0",

@@ -158,7 +158,7 @@ HAPDSW.prototype.ap=function(){
 HAPDSW.prototype.client=function(testnetw,testint){
 
   var dev=this.config.interface;
-  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.config.wpasupplicant_path+' -D wext && dhclient '+dev;
+  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.config.wpasupplicant_path+' -D wext && dhclient '+dev+' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
 
   return new Promise(function(resolve,reject){
 

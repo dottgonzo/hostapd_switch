@@ -9,7 +9,7 @@ var conf={
   wpa_passphrase:'testpass'
 }
 }
-var WS=new WlanSwitch(conf,true)
+var WS=new WlanSwitch(conf)
 console.log(WS)
 
 WS.host().then(function(options){

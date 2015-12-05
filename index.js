@@ -127,10 +127,10 @@ HAPDSW.prototype.host=function(){
       exec(cmd).then(function(){
         resolve({mode:'ap',ip:hostIp})
       }).catch(function(err){
-        verb(err,'error','hostapd_switch executing ap switch')
+        verb(err,'error','hostapd_switch executing host switch')
       })
     }).catch(function(err){
-      verb(err,'error','hostapd_switch executing ap switch')
+      verb(err,'error','hostapd_switch executing host switch')
     })
   })
 },

@@ -182,6 +182,9 @@ HAPDSW.prototype.client=function(testnetw,testint){
             }).catch(function(err){
               reject(err)
             })
+          } else{
+            resolve('executed')
+
           }
 
         }).catch(function(err){
@@ -192,6 +195,9 @@ HAPDSW.prototype.client=function(testnetw,testint){
             }).catch(function(err){
               reject(err)
             })
+          } else{
+            resolve('executed')
+
           }
         })
       } else{

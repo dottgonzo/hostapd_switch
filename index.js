@@ -20,7 +20,7 @@ function testconn(d,testint){
         var externalIp=false;
         for(ns=0;ns<n.networks.length;ns++){
           if(n.networks[ns].interface==d){
-            dev=options.interface;
+            dev=d;
             if(n.networks[ns].ip){
               ip=n.networks[ns].ip
             }
@@ -199,7 +199,9 @@ HAPDSW.prototype.client=function(testnetw,testint){
         })
       } else{
         if(n.externalIp){
-          resolve({mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp})
+          resolve({
+            mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp
+          })
         } else{
           resolve({mode:'client',ip:ip,gateway:gw})
         }

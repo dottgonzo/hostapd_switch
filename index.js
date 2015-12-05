@@ -117,7 +117,7 @@ function HAPDSW(options,init){
 
 HAPDSW.prototype.host=function(){
 
-  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+this.dnsmasq.host+' netmask 255.255.255.0 up'
 
   return new Promise(function(resolve,reject){
 
@@ -140,7 +140,7 @@ HAPDSW.prototype.host=function(){
 HAPDSW.prototype.ap=function(){
   var hostIp=this.dnsmasq.host;
   var dnsmasq=this.dnsmasq;
-  var cmd='pkill wpa_supplicant; sleep 2 && ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+hostIp+' netmask 255.255.255.0 up'
+  var cmd='pkill wpa_supplicant ; ifconfig '+this.interface+' up && systemctl start hostapd && systemctl start dnsmasq && ifconfig '+this.interface+' '+hostIp+' netmask 255.255.255.0 up'
   return new Promise(function(resolve,reject){
     dnsmasq.ap().then(function(){
       exec(cmd).then(function(){
@@ -157,7 +157,7 @@ HAPDSW.prototype.ap=function(){
 HAPDSW.prototype.client=function(testnetw,testint){
 
   var dev=this.interface;
-  var cmd='ifconfig '+dev+' down ; sleep 2 && dhclient -r '+dev+' && systemctl stop hostapd && systemctl stop dnsmasq && ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.wpasupplicant_path+' -D wext && dhclient '+dev;
+  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.wpasupplicant_path+' -D wext && dhclient '+dev;
 
   return new Promise(function(resolve,reject){
 
@@ -179,7 +179,6 @@ HAPDSW.prototype.client=function(testnetw,testint){
               resolve(answer)
             }).catch(function(err){
               reject(err)
-
             })
           }
 

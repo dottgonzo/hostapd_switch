@@ -1,13 +1,13 @@
 {
   "name": "hostapd_switch",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "Utility to easy switch between client mode and ap mode. ",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
     "ap": "node ./run/ap.js",
     "host": "node ./run/host.js",
-        "hostnl": "node ./run/hostnl.js",
+    "hostnl": "node ./run/hostnl.js",
     "client": "node ./run/client.js",
     "settings": "node ./run/settings.js",
     "hw": "git add -A && git commit -m 'oki'&&npm version patch -m patch&&git add -A && git commit --amend -C HEAD&& git push&&npm publish",

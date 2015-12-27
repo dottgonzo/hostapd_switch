@@ -1,223 +1,209 @@
-var exec = require('promised-exec'),
-Promise=require('promise'),
-testinternet=require('promise-test-connection'),
-netw=require('netw'),
-merge=require('json-add'),
-hostapdconf=require('hostapdjs'),
-dnsmasqconf=require('dnsmasq-conf'),
-waitfor=require('waitfor-promise'),
-pathExists=require('path-exists'),
-verb=require('verbo');
-
-function testconn(d,testint){
-
-  var fun=function(){
-    return new Promise(function(resolve,reject){
-      netw().then(function(n){
-        var dev=false;
-        var ip=false;
-        var gw=false;
-        var externalIp=false;
-        for(ns=0;ns<n.networks.length;ns++){
-          if(n.networks[ns].interface==d){
-            dev=d;
-            if(n.networks[ns].ip){
-              ip=n.networks[ns].ip
-            }
-            if(n.networks[ns].gateway){
-              gw=n.networks[ns].gateway
-            }
-            if(n.externalIp){
-              externalIp=n.externalIp
-            }
-          }
-        }
-        if(!dev){
-          reject('no interface')
-        } else if (!ip){
-          reject(dev+' can\'t get an ip address')
-        } else if (!gw){
-          reject(dev+' has no gateway')
-        } else{
-          if(testint){
-            testinternet().then(function(){
-              if(externalIp){
-                resolve({
-                  mode:'client',ip:ip,gateway:gw,externalIp:externalIp
-                })
-              } else{
-                resolve({mode:'client',ip:ip,gateway:gw})
-              }
-            }).catch(function(err){
-              reject(err)
-            })
-          } else{
-            if(externalIp){
-              resolve({
-                mode:'client',ip:ip,gateway:gw,externalIp:externalIp
-              })
-            } else{
-              resolve({mode:'client',ip:ip,gateway:gw})
-            }
-          }
-        }
-
-      }).catch(function(err){
-        reject('netw'+err)
-      })
-    })
-  }
-
-  return waitfor.pre(fun,{
-    time:5000,
-    timeout:40000
-  })
+var Promise = require("bluebird");
+var merge = require("json-add");
+var pathExists = require('path-exists');
+var verb = require('verbo');
+var exec = require('promised-exec');
+var testinternet = require('promise-test-connection');
+var netw = require('netw');
+var hostapdconf = require("hostapdjs");
+var dnsmasqconf = require('dnsmasq-conf');
+var waitfor = require('waitfor-promise');
+function testconn(d, testint) {
+    var fun = function () {
+        return new Promise(function (resolve, reject) {
+            netw().then(function (n) {
+                var dev = false;
+                var ip = false;
+                var gw = false;
+                var externalIp = false;
+                for (var ns = 0; ns < n.networks.length; ns++) {
+                    if (n.networks[ns].interface == d) {
+                        dev = d;
+                        if (n.networks[ns].ip) {
+                            ip = n.networks[ns].ip;
+                        }
+                        if (n.networks[ns].gateway) {
+                            gw = n.networks[ns].gateway;
+                        }
+                        if (n.externalIp) {
+                            externalIp = n.externalIp;
+                        }
+                    }
+                }
+                if (!dev) {
+                    reject('no interface');
+                }
+                else if (!ip) {
+                    reject(dev + ' can\'t get an ip address');
+                }
+                else if (!gw) {
+                    reject(dev + ' has no gateway');
+                }
+                else {
+                    if (testint) {
+                        testinternet().then(function () {
+                            if (externalIp) {
+                                resolve({
+                                    mode: 'client', ip: ip, gateway: gw, externalIp: externalIp
+                                });
+                            }
+                            else {
+                                resolve({ mode: 'client', ip: ip, gateway: gw });
+                            }
+                        }).catch(function (err) {
+                            reject(err);
+                        });
+                    }
+                    else {
+                        if (externalIp) {
+                            resolve({
+                                mode: 'client', ip: ip, gateway: gw, externalIp: externalIp
+                            });
+                        }
+                        else {
+                            resolve({ mode: 'client', ip: ip, gateway: gw });
+                        }
+                    }
+                }
+            }).catch(function (err) {
+                reject('netw' + err);
+            });
+        });
+    };
+    return waitfor.pre(fun, {
+        time: 5000,
+        timeout: 40000
+    });
 }
-
-
-function HAPDSW(options,init){
-
-
-  var config={
-    interface:'wlan0',
-    wpasupplicant_path:'/etc/wpa_supplicant/wpa_supplicant.conf',
-    redirect:80
-  }
-
-  config.hostapd={
-    interface:config.interface
-  }
-  config.dnsmasq={
-    interface:config.interface
-  }
-
-  merge(config,options)
-
-
-  if(!pathExists.sync('/etc/default/hostapd')){
-    throw Error('no default conf file was founded for hostapd')
-  }
-  if(!config.hostapd.ssid){
-    throw Error('No ssid was provided')
-  }
-  if(!config.hostapd.wpa_passphrase){
-    throw Error('No wpa_passphrase was provided')
-  }
-
-
-  this.config=config;
-
-  this.dnsmasq=new dnsmasqconf(config.dnsmasq);
-
-  if(init){
-    hostapdconf(config.hostapd).then(function(){
-      console.log('hostapd is now configured')
-    })
-  }
-};
-
-
-
-
-HAPDSW.prototype.host=function(){
-  var dnsmasq=this.dnsmasq;
-  var redirect_port=this.config.redirect;
-  var hostIp=dnsmasq.host;
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up && sleep 5';
-  return new Promise(function(resolve,reject){
-    dnsmasq.setmode('host').then(function(){
-
-        exec(cmd).then(function(){
-                exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination '+hostIp+':'+redirect_port+' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination '+hostIp+':'+redirect_port).then(function(){
-          resolve({mode:'host',ip:hostIp})
-        }).catch(function(err){
-          verb(err,'error','hostapd_switch ipfilter host switch')
-        })
-      }).catch(function(err){
-        verb(err,'error','hostapd_switch executing host switch')
-      })
-    }).catch(function(err){
-      verb(err,'error','hostapd_switch executing dnsmasq host switch')
-    })
-  })
+function HAPDSW(options, init) {
+    var interf;
+    var wpasupplicant_path;
+    if (options.interface) {
+        interf = options.interface;
+    }
+    else {
+        interf = "wlan0";
+    }
+    var defaultssid = "hapd111";
+    var config = {
+        interface: interf,
+        wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
+        redirect: 80,
+        hostapd: { interface: interf, wpa_passphrase: false, ssid: defaultssid },
+        dnsmasq: { interface: interf }
+    };
+    merge(config, options);
+    if (!pathExists.sync('/etc/default/hostapd')) {
+        throw Error('no default conf file was founded for hostapd');
+    }
+    if (!config.hostapd.ssid) {
+        throw Error('No ssid was provided');
+    }
+    if (!config.hostapd.wpa_passphrase) {
+        throw Error('No wpa_passphrase was provided');
+    }
+    this.config = config;
+    this.dnsmasq = new dnsmasqconf(config.dnsmasq);
+    if (init) {
+        hostapdconf(config.hostapd).then(function () {
+            console.log('hostapd is now configured');
+        });
+    }
+}
+;
+HAPDSW.prototype.host = function (e) {
+    var dnsmasq = this.dnsmasq;
+    var redirect_port = this.config.redirect;
+    var hostIp = dnsmasq.host;
+    var cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
+    return new Promise(function (resolve, reject) {
+        dnsmasq.setmode('host').then(function () {
+            exec(cmd).then(function () {
+                exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':' + redirect_port + ' && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':' + redirect_port).then(function () {
+                    resolve({ mode: 'host', ip: hostIp });
+                }).catch(function (err) {
+                    verb(err, 'error', 'hostapd_switch ipfilter host switch');
+                });
+            }).catch(function (err) {
+                verb(err, 'error', 'hostapd_switch executing host switch');
+            });
+        }).catch(function (err) {
+            verb(err, 'error', 'hostapd_switch executing dnsmasq host switch');
+        });
+    });
 },
+    HAPDSW.prototype.ap = function () {
+        var dnsmasq = this.dnsmasq;
+        var hostIp = dnsmasq.host;
+        var cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
+        return new Promise(function (resolve, reject) {
+            dnsmasq.ap().then(function () {
+                exec(cmd).then(function () {
+                    resolve({ mode: 'ap', ip: hostIp });
+                }).catch(function (err) {
+                    verb(err, 'error', 'hostapd_switch executing ap switch');
+                });
+            }).catch(function (err) {
+                verb(err, 'error', 'hostapd_switch executing ap switch');
+            });
+        });
+    },
+    HAPDSW.prototype.client = function (testnetw, testint) {
+        var dev = this.config.interface;
+        var cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D wext && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
+        return new Promise(function (resolve, reject) {
+            netw().then(function (n) {
+                var todo = true;
+                var ip = false;
+                var gw = false;
+                for (var ns = 0; ns < n.networks.length; ns++) {
+                    if (n.networks[ns].interface == dev && n.networks[ns].ip && n.networks[ns].gateway) {
+                        todo = false;
+                        ip = n.networks[ns].ip;
+                        gw = n.networks[ns].gateway;
+                    }
+                }
+                if (todo) {
+                    exec(cmd).then(function () {
+                        if (testnetw) {
+                            testconn(dev, testint).then(function (answer) {
+                                resolve(answer);
+                            }).catch(function (err) {
+                                reject(err);
+                            });
+                        }
+                        else {
+                            resolve('executed');
+                        }
+                    }).catch(function (err) {
+                        verb(err, 'warn', 'hostapd_switch exec');
+                        if (testnetw) {
+                            testconn(dev, testint).then(function (answer) {
+                                resolve(answer);
+                            }).catch(function (err) {
+                                reject(err);
+                            });
+                        }
+                        else {
+                            resolve('executed');
+                        }
+                    });
+                }
+                else {
+                    if (n.externalIp) {
+                        resolve({
+                            mode: 'client', ip: ip, gateway: gw, externalIp: n.externalIp
+                        });
+                    }
+                    else {
+                        resolve({ mode: 'client', ip: ip, gateway: gw });
+                    }
+                }
+            }).catch(function (err) {
+                verb(err, 'error', 'hostapd_switch conf error');
+            });
+        });
+    };
+module.exports = HAPDSW;
 
-
-HAPDSW.prototype.ap=function(){
-  var dnsmasq=this.dnsmasq;
-  var hostIp=dnsmasq.host;
-  var cmd='pkill wpa_supplicant ; ifconfig '+this.config.interface+' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig '+this.config.interface+' '+hostIp+' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
-  return new Promise(function(resolve,reject){
-    dnsmasq.ap().then(function(){
-      exec(cmd).then(function(){
-        resolve({mode:'ap',ip:hostIp})
-      }).catch(function(err){
-        verb(err,'error','hostapd_switch executing ap switch')
-      })
-    }).catch(function(err){
-      verb(err,'error','hostapd_switch executing ap switch')
-    })
-  })
-},
-
-HAPDSW.prototype.client=function(testnetw,testint){
-
-  var dev=this.config.interface;
-  var cmd='ifconfig '+dev+' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r '+dev+' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig '+dev+' up && wpa_supplicant -B -i '+dev+' -c '+this.config.wpasupplicant_path+' -D wext && dhclient '+dev+' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
-
-  return new Promise(function(resolve,reject){
-
-    netw().then(function(n){
-      var todo=true;
-      var ip=false;
-      var gw=false;
-      for(ns=0;ns<n.networks.length;ns++){
-        if(n.networks[ns].interface==dev&&n.networks[ns].ip&&n.networks[ns].gateway){
-          todo=false;
-          ip=n.networks[ns].ip;
-          gw=n.networks[ns].gateway;
-        }
-      }
-      if(todo){
-        exec(cmd).then(function(){
-          if(testnetw){
-            testconn(dev,testint).then(function(answer){
-              resolve(answer)
-            }).catch(function(err){
-              reject(err)
-            })
-          } else{
-            resolve('executed')
-
-          }
-
-        }).catch(function(err){
-          verb(err,'warn','hostapd_switch exec')
-          if(testnetw){
-            testconn(dev,testint).then(function(answer){
-              resolve(answer)
-            }).catch(function(err){
-              reject(err)
-            })
-          } else{
-            resolve('executed')
-
-          }
-        })
-      } else{
-        if(n.externalIp){
-          resolve({
-            mode:'client',ip:ip,gateway:gw,externalIp:n.externalIp
-          })
-        } else{
-          resolve({mode:'client',ip:ip,gateway:gw})
-        }
-      }
-
-    }).catch(function(err){
-      verb(err,'error','hostapd_switch conf error')
-    })
-  })
-
-};
-module.exports = HAPDSW
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImluZGV4LnRzIl0sIm5hbWVzIjpbInRlc3Rjb25uIiwiSEFQRFNXIl0sIm1hcHBpbmdzIjoiQUFDQSxJQUFZLE9BQU8sV0FBTSxVQUFVLENBQUMsQ0FBQTtBQUNwQyxJQUFPLEtBQUssV0FBUyxVQUFVLENBQUMsQ0FBQztBQUNqQyxJQUFPLFVBQVUsV0FBUyxhQUFhLENBQUMsQ0FBQztBQUN6QyxJQUFJLElBQUksR0FBQyxPQUFPLENBQUMsT0FBTyxDQUFDLENBQUM7QUFDMUIsSUFBSSxJQUFJLEdBQUcsT0FBTyxDQUFDLGVBQWUsQ0FBQyxDQUFDO0FBQ3BDLElBQUksWUFBWSxHQUFDLE9BQU8sQ0FBQyx5QkFBeUIsQ0FBQyxDQUFDO0FBQ3BELElBQUksSUFBSSxHQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsQ0FBQztBQUN6QixJQUFJLFdBQVcsR0FBQyxPQUFPLENBQUMsV0FBVyxDQUFDLENBQUM7QUFDckMsSUFBSSxXQUFXLEdBQUMsT0FBTyxDQUFDLGNBQWMsQ0FBQyxDQUFDO0FBQ3hDLElBQUksT0FBTyxHQUFDLE9BQU8sQ0FBQyxpQkFBaUIsQ0FBQyxDQUFDO0FBR3ZDLGtCQUFrQixDQUFDLEVBQUMsT0FBTztJQUV6QkEsSUFBSUEsR0FBR0EsR0FBQ0E7UUFDTixNQUFNLENBQUMsSUFBSSxPQUFPLENBQUMsVUFBUyxPQUFPLEVBQUMsTUFBTTtZQUN4QyxJQUFJLEVBQUUsQ0FBQyxJQUFJLENBQUMsVUFBUyxDQUFDO2dCQUNwQixJQUFJLEdBQUcsR0FBQyxLQUFLLENBQUM7Z0JBQ2QsSUFBSSxFQUFFLEdBQUMsS0FBSyxDQUFDO2dCQUNiLElBQUksRUFBRSxHQUFDLEtBQUssQ0FBQztnQkFDYixJQUFJLFVBQVUsR0FBQyxLQUFLLENBQUM7Z0JBQ3JCLEdBQUcsQ0FBQSxDQUFDLEdBQUcsQ0FBQyxFQUFFLEdBQUMsQ0FBQyxFQUFDLEVBQUUsR0FBQyxDQUFDLENBQUMsUUFBUSxDQUFDLE1BQU0sRUFBQyxFQUFFLEVBQUUsRUFBQyxDQUFDO29CQUN0QyxF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QUFDLDJCQUEyQixDQUFDLENBQUE7WUFDL0MsQ0FBQyxDQUFDLENBQUE7UUFDSixDQUFDLENBQUMsQ0FBQTtJQUVKLENBQUMsQ0FBQztBQUNGLE1BQU0sQ0FBQyxPQUFPLEdBQUcsTUFBTSxDQUFBIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiXG5pbXBvcnQgKiBhcyBQcm9taXNlIGZyb20gXCJibHVlYmlyZFwiO1xuaW1wb3J0IG1lcmdlPXJlcXVpcmUoXCJqc29uLWFkZFwiKTtcbmltcG9ydCBwYXRoRXhpc3RzPXJlcXVpcmUoJ3BhdGgtZXhpc3RzJyk7XG5sZXQgdmVyYj1yZXF1aXJlKCd2ZXJibycpO1xubGV0IGV4ZWMgPSByZXF1aXJlKCdwcm9taXNlZC1leGVjJyk7XG5sZXQgdGVzdGludGVybmV0PXJlcXVpcmUoJ3Byb21pc2UtdGVzdC1jb25uZWN0aW9uJyk7XG5sZXQgbmV0dz1yZXF1aXJlKCduZXR3Jyk7XG5sZXQgaG9zdGFwZGNvbmY9cmVxdWlyZShcImhvc3RhcGRqc1wiKTtcbmxldCBkbnNtYXNxY29uZj1yZXF1aXJlKCdkbnNtYXNxLWNvbmYnKTtcbmxldCB3YWl0Zm9yPXJlcXVpcmUoJ3dhaXRmb3ItcHJvbWlzZScpO1xuXG5cbmZ1bmN0aW9uIHRlc3Rjb25uKGQsdGVzdGludCl7XG5cbiAgdmFyIGZ1bj1mdW5jdGlvbigpe1xuICAgIHJldHVybiBuZXcgUHJvbWlzZShmdW5jdGlvbihyZXNvbHZlLHJlamVjdCl7XG4gICAgICBuZXR3KCkudGhlbihmdW5jdGlvbihuKXtcbiAgICAgICAgdmFyIGRldj1mYWxzZTtcbiAgICAgICAgdmFyIGlwPWZhbHNlO1xuICAgICAgICB2YXIgZ3c9ZmFsc2U7XG4gICAgICAgIHZhciBleHRlcm5hbElwPWZhbHNlO1xuICAgICAgICBmb3IobGV0IG5zPTA7bnM8bi5uZXR3b3Jrcy5sZW5ndGg7bnMrKyl7XG4gICAgICAgICAgaWYobi5uZXR3b3Jrc1tuc10uaW50ZXJmYWNlPT1kKXtcbiAgICAgICAgICAgIGRldj1kO1xuICAgICAgICAgICAgaWYobi5uZXR3b3Jrc1tuc10uaXApe1xuICAgICAgICAgICAgICBpcD1uLm5ldHdvcmtzW25zXS5pcFxuICAgICAgICAgICAgfVxuICAgICAgICAgICAgaWYobi5uZXR3b3Jrc1tuc10uZ2F0ZXdheSl7XG4gICAgICAgICAgICAgIGd3PW4ubmV0d29ya3NbbnNdLmdhdGV3YXlcbiAgICAgICAgICAgIH1cbiAgICAgICAgICAgIGlmKG4uZXh0ZXJuYWxJcCl7XG4gICAgICAgICAgICAgIGV4dGVybmFsSXA9bi5leHRlcm5hbElwXG4gICAgICAgICAgICB9XG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICAgIGlmKCFkZXYpe1xuICAgICAgICAgIHJlamVjdCgnbm8gaW50ZXJmYWNlJylcbiAgICAgICAgfSBlbHNlIGlmICghaXApe1xuICAgICAgICAgIHJlamVjdChkZXYrJyBjYW5cXCd0IGdldCBhbiBpcCBhZGRyZXNzJylcbiAgICAgICAgfSBlbHNlIGlmICghZ3cpe1xuICAgICAgICAgIHJlamVjdChkZXYrJyBoYXMgbm8gZ2F0ZXdheScpXG4gICAgICAgIH0gZWxzZXtcbiAgICAgICAgICBpZih0ZXN0aW50KXtcbiAgICAgICAgICAgIHRlc3RpbnRlcm5ldCgpLnRoZW4oZnVuY3Rpb24oKXtcbiAgICAgICAgICAgICAgaWYoZXh0ZXJuYWxJcCl7XG4gICAgICAgICAgICAgICAgcmVzb2x2ZSh7XG4gICAgICAgICAgICAgICAgICBtb2RlOidjbGllbnQnLGlwOmlwLGdhdGV3YXk6Z3csZXh0ZXJuYWxJcDpleHRlcm5hbElwXG4gICAgICAgICAgICAgICAgfSlcbiAgICAgICAgICAgICAgfSBlbHNle1xuICAgICAgICAgICAgICAgIHJlc29sdmUoe21vZGU6J2NsaWVudCcsaXA6aXAsZ2F0ZXdheTpnd30pXG4gICAgICAgICAgICAgIH1cbiAgICAgICAgICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICAgICAgICAgIHJlamVjdChlcnIpXG4gICAgICAgICAgICB9KVxuICAgICAgICAgIH0gZWxzZXtcbiAgICAgICAgICAgIGlmKGV4dGVybmFsSXApe1xuICAgICAgICAgICAgICByZXNvbHZlKHtcbiAgICAgICAgICAgICAgICBtb2RlOidjbGllbnQnLGlwOmlwLGdhdGV3YXk6Z3csZXh0ZXJuYWxJcDpleHRlcm5hbElwXG4gICAgICAgICAgICAgIH0pXG4gICAgICAgICAgICB9IGVsc2V7XG4gICAgICAgICAgICAgIHJlc29sdmUoe21vZGU6J2NsaWVudCcsaXA6aXAsZ2F0ZXdheTpnd30pXG4gICAgICAgICAgICB9XG4gICAgICAgICAgfVxuICAgICAgICB9XG5cbiAgICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICAgIHJlamVjdCgnbmV0dycrZXJyKVxuICAgICAgfSlcbiAgICB9KVxuICB9XG5cbiAgcmV0dXJuIHdhaXRmb3IucHJlKGZ1bix7XG4gICAgdGltZTo1MDAwLFxuICAgIHRpbWVvdXQ6NDAwMDBcbiAgfSlcbn1cblxuXG5mdW5jdGlvbiBIQVBEU1cob3B0aW9uczp7aW50ZXJmYWNlOnN0cmluZyx3cGFzdXBwbGljYW50X3BhdGg6c3RyaW5nLGhvc3RhcGQ6e2ludGVyZmFjZTpzdHJpbmcsc3NpZDpzdHJpbmd9fSxpbml0KXtcbmxldCBpbnRlcmY7XG5sZXQgd3Bhc3VwcGxpY2FudF9wYXRoO1xuXG5pZihvcHRpb25zLmludGVyZmFjZSl7XG4gICAgaW50ZXJmPW9wdGlvbnMuaW50ZXJmYWNlO1xufWVsc2V7XG4gICBpbnRlcmY9XCJ3bGFuMFwiO1xufVxuXG5sZXQgZGVmYXVsdHNzaWQ9XCJoYXBkMTExXCI7XG5cblxuICBsZXQgY29uZmlnPXtcbiAgICBpbnRlcmZhY2U6aW50ZXJmLFxuICAgIHdwYXN1cHBsaWNhbnRfcGF0aDpcIi9ldGMvd3BhX3N1cHBsaWNhbnQvd3BhX3N1cHBsaWNhbnQuY29uZlwiLFxuICAgIHJlZGlyZWN0OjgwLFxuICAgIGhvc3RhcGQ6e2ludGVyZmFjZTppbnRlcmYsd3BhX3Bhc3NwaHJhc2U6ZmFsc2Usc3NpZDpkZWZhdWx0c3NpZH0sXG4gICAgZG5zbWFzcTp7aW50ZXJmYWNlOmludGVyZn1cbiAgfVxuXG5cblxuICBtZXJnZShjb25maWcsb3B0aW9ucylcblxuXG4gIGlmKCFwYXRoRXhpc3RzLnN5bmMoJy9ldGMvZGVmYXVsdC9ob3N0YXBkJykpe1xuICAgIHRocm93IEVycm9yKCdubyBkZWZhdWx0IGNvbmYgZmlsZSB3YXMgZm91bmRlZCBmb3IgaG9zdGFwZCcpXG4gIH1cbiAgaWYoIWNvbmZpZy5ob3N0YXBkLnNzaWQpe1xuICAgIHRocm93IEVycm9yKCdObyBzc2lkIHdhcyBwcm92aWRlZCcpXG4gIH1cbiAgaWYoIWNvbmZpZy5ob3N0YXBkLndwYV9wYXNzcGhyYXNlKXtcbiAgICB0aHJvdyBFcnJvcignTm8gd3BhX3Bhc3NwaHJhc2Ugd2FzIHByb3ZpZGVkJylcbiAgfVxuXG5cbiAgdGhpcy5jb25maWc9Y29uZmlnO1xuXG4gIHRoaXMuZG5zbWFzcT1uZXcgZG5zbWFzcWNvbmYoY29uZmlnLmRuc21hc3EpO1xuXG4gIGlmKGluaXQpe1xuICAgIGhvc3RhcGRjb25mKGNvbmZpZy5ob3N0YXBkKS50aGVuKGZ1bmN0aW9uKCl7XG4gICAgICBjb25zb2xlLmxvZygnaG9zdGFwZCBpcyBub3cgY29uZmlndXJlZCcpXG4gICAgfSlcbiAgfVxufTtcblxuXG5cblxuSEFQRFNXLnByb3RvdHlwZS5ob3N0PWZ1bmN0aW9uKGU6YW55KXtcbiAgdmFyIGRuc21hc3E9dGhpcy5kbnNtYXNxO1xuICB2YXIgcmVkaXJlY3RfcG9ydD10aGlzLmNvbmZpZy5yZWRpcmVjdDtcbiAgdmFyIGhvc3RJcD1kbnNtYXNxLmhvc3Q7XG4gIHZhciBjbWQ9J3BraWxsIHdwYV9zdXBwbGljYW50IDsgaWZjb25maWcgJyt0aGlzLmNvbmZpZy5pbnRlcmZhY2UrJyB1cCAmJiBzeXN0ZW1jdGwgcmVzdGFydCBob3N0YXBkIDsgc3lzdGVtY3RsIHJlc3RhcnQgZG5zbWFzcSAmJiBpZmNvbmZpZyAnK3RoaXMuY29uZmlnLmludGVyZmFjZSsnICcraG9zdElwKycgbmV0bWFzayAyNTUuMjU1LjI1NS4wIHVwICYmIHNsZWVwIDUnO1xuICByZXR1cm4gbmV3IFByb21pc2UoZnVuY3Rpb24ocmVzb2x2ZSxyZWplY3Qpe1xuICAgIGRuc21hc3Euc2V0bW9kZSgnaG9zdCcpLnRoZW4oZnVuY3Rpb24oKXtcblxuICAgICAgICBleGVjKGNtZCkudGhlbihmdW5jdGlvbigpe1xuICAgICAgICAgICAgICAgIGV4ZWMoJ2lwdGFibGVzIC10IG5hdCAtQSBQUkVST1VUSU5HIC1wIHRjcCAtLWRwb3J0IDgwIC1qIEROQVQgLS10by1kZXN0aW5hdGlvbiAnK2hvc3RJcCsnOicrcmVkaXJlY3RfcG9ydCsnICYmIGlwdGFibGVzIC10IG5hdCAtQSBQUkVST1VUSU5HIC1wIHRjcCAtLWRwb3J0IDQ0MyAtaiBETkFUIC0tdG8tZGVzdGluYXRpb24gJytob3N0SXArJzonK3JlZGlyZWN0X3BvcnQpLnRoZW4oZnVuY3Rpb24oKXtcbiAgICAgICAgICByZXNvbHZlKHttb2RlOidob3N0JyxpcDpob3N0SXB9KVxuICAgICAgICB9KS5jYXRjaChmdW5jdGlvbihlcnIpe1xuICAgICAgICAgIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGlwZmlsdGVyIGhvc3Qgc3dpdGNoJylcbiAgICAgICAgfSlcbiAgICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICAgIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGV4ZWN1dGluZyBob3N0IHN3aXRjaCcpXG4gICAgICB9KVxuICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICB2ZXJiKGVyciwnZXJyb3InLCdob3N0YXBkX3N3aXRjaCBleGVjdXRpbmcgZG5zbWFzcSBob3N0IHN3aXRjaCcpXG4gICAgfSlcbiAgfSlcbn0sXG5cblxuSEFQRFNXLnByb3RvdHlwZS5hcD1mdW5jdGlvbigpe1xuICB2YXIgZG5zbWFzcT10aGlzLmRuc21hc3E7XG4gIHZhciBob3N0SXA9ZG5zbWFzcS5ob3N0O1xuICB2YXIgY21kPSdwa2lsbCB3cGFfc3VwcGxpY2FudCA7IGlmY29uZmlnICcrdGhpcy5jb25maWcuaW50ZXJmYWNlKycgdXAgICYmIHN5c3RlbWN0bCByZXN0YXJ0IGhvc3RhcGQgOyBzeXN0ZW1jdGwgcmVzdGFydCBkbnNtYXNxICYmIGlmY29uZmlnICcrdGhpcy5jb25maWcuaW50ZXJmYWNlKycgJytob3N0SXArJyBuZXRtYXNrIDI1NS4yNTUuMjU1LjAgdXAgJiYgZm9yIGkgaW4gJCggaXB0YWJsZXMgLXQgbmF0IC0tbGluZS1udW1iZXJzIC1MIHwgZ3JlcCBeWzAtOV0gfCBhd2sgXFwneyBwcmludCAkMSB9XFwnIHwgdGFjICk7IGRvIGlwdGFibGVzIC10IG5hdCAtRCBQUkVST1VUSU5HICRpOyBkb25lJ1xuICByZXR1cm4gbmV3IFByb21pc2UoZnVuY3Rpb24ocmVzb2x2ZSxyZWplY3Qpe1xuICAgIGRuc21hc3EuYXAoKS50aGVuKGZ1bmN0aW9uKCl7XG4gICAgICBleGVjKGNtZCkudGhlbihmdW5jdGlvbigpe1xuICAgICAgICByZXNvbHZlKHttb2RlOidhcCcsaXA6aG9zdElwfSlcbiAgICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICAgIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGV4ZWN1dGluZyBhcCBzd2l0Y2gnKVxuICAgICAgfSlcbiAgICB9KS5jYXRjaChmdW5jdGlvbihlcnIpe1xuICAgICAgdmVyYihlcnIsJ2Vycm9yJywnaG9zdGFwZF9zd2l0Y2ggZXhlY3V0aW5nIGFwIHN3aXRjaCcpXG4gICAgfSlcbiAgfSlcbn0sXG5cbkhBUERTVy5wcm90b3R5cGUuY2xpZW50PWZ1bmN0aW9uKHRlc3RuZXR3LHRlc3RpbnQpe1xuXG4gIHZhciBkZXY9dGhpcy5jb25maWcuaW50ZXJmYWNlO1xuICB2YXIgY21kPSdpZmNvbmZpZyAnK2RldisnIGRvd24gJiYgc2xlZXAgMiA7IHBraWxsIHdwYV9zdXBwbGljYW50IDsgIGRoY2xpZW50IC1yICcrZGV2KycgOyBzeXN0ZW1jdGwgc3RvcCBob3N0YXBkIDsgc3lzdGVtY3RsIHN0b3AgZG5zbWFzcSA7IHNsZWVwIDI7IGlmY29uZmlnICcrZGV2KycgdXAgJiYgd3BhX3N1cHBsaWNhbnQgLUIgLWkgJytkZXYrJyAtYyAnK3RoaXMuY29uZmlnLndwYXN1cHBsaWNhbnRfcGF0aCsnIC1EIHdleHQgJiYgZGhjbGllbnQgJytkZXYrJyAmJiBmb3IgaSBpbiAkKCBpcHRhYmxlcyAtdCBuYXQgLS1saW5lLW51bWJlcnMgLUwgfCBncmVwIF5bMC05XSB8IGF3ayBcXCd7IHByaW50ICQxIH1cXCcgfCB0YWMgKTsgZG8gaXB0YWJsZXMgLXQgbmF0IC1EIFBSRVJPVVRJTkcgJGk7IGRvbmUnO1xuXG4gIHJldHVybiBuZXcgUHJvbWlzZShmdW5jdGlvbihyZXNvbHZlLHJlamVjdCl7XG5cbiAgICBuZXR3KCkudGhlbihmdW5jdGlvbihuKXtcbiAgICAgIHZhciB0b2RvPXRydWU7XG4gICAgICB2YXIgaXA9ZmFsc2U7XG4gICAgICB2YXIgZ3c9ZmFsc2U7XG4gICAgICBmb3IobGV0IG5zPTA7bnM8bi5uZXR3b3Jrcy5sZW5ndGg7bnMrKyl7XG4gICAgICAgIGlmKG4ubmV0d29ya3NbbnNdLmludGVyZmFjZT09ZGV2JiZuLm5ldHdvcmtzW25zXS5pcCYmbi5uZXR3b3Jrc1tuc10uZ2F0ZXdheSl7XG4gICAgICAgICAgdG9kbz1mYWxzZTtcbiAgICAgICAgICBpcD1uLm5ldHdvcmtzW25zXS5pcDtcbiAgICAgICAgICBndz1uLm5ldHdvcmtzW25zXS5nYXRld2F5O1xuICAgICAgICB9XG4gICAgICB9XG4gICAgICBpZih0b2RvKXtcbiAgICAgICAgZXhlYyhjbWQpLnRoZW4oZnVuY3Rpb24oKXtcbiAgICAgICAgICBpZih0ZXN0bmV0dyl7XG4gICAgICAgICAgICB0ZXN0Y29ubihkZXYsdGVzdGludCkudGhlbihmdW5jdGlvbihhbnN3ZXIpe1xuICAgICAgICAgICAgICByZXNvbHZlKGFuc3dlcilcbiAgICAgICAgICAgIH0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gICAgICAgICAgICAgIHJlamVjdChlcnIpXG4gICAgICAgICAgICB9KVxuICAgICAgICAgIH0gZWxzZXtcbiAgICAgICAgICAgIHJlc29sdmUoJ2V4ZWN1dGVkJylcblxuICAgICAgICAgIH1cblxuICAgICAgICB9KS5jYXRjaChmdW5jdGlvbihlcnIpe1xuICAgICAgICAgIHZlcmIoZXJyLCd3YXJuJywnaG9zdGFwZF9zd2l0Y2ggZXhlYycpXG4gICAgICAgICAgaWYodGVzdG5ldHcpe1xuICAgICAgICAgICAgdGVzdGNvbm4oZGV2LHRlc3RpbnQpLnRoZW4oZnVuY3Rpb24oYW5zd2VyKXtcbiAgICAgICAgICAgICAgcmVzb2x2ZShhbnN3ZXIpXG4gICAgICAgICAgICB9KS5jYXRjaChmdW5jdGlvbihlcnIpe1xuICAgICAgICAgICAgICByZWplY3QoZXJyKVxuICAgICAgICAgICAgfSlcbiAgICAgICAgICB9IGVsc2V7XG4gICAgICAgICAgICByZXNvbHZlKCdleGVjdXRlZCcpXG5cbiAgICAgICAgICB9XG4gICAgICAgIH0pXG4gICAgICB9IGVsc2V7XG4gICAgICAgIGlmKG4uZXh0ZXJuYWxJcCl7XG4gICAgICAgICAgcmVzb2x2ZSh7XG4gICAgICAgICAgICBtb2RlOidjbGllbnQnLGlwOmlwLGdhdGV3YXk6Z3csZXh0ZXJuYWxJcDpuLmV4dGVybmFsSXBcbiAgICAgICAgICB9KVxuICAgICAgICB9IGVsc2V7XG4gICAgICAgICAgcmVzb2x2ZSh7bW9kZTonY2xpZW50JyxpcDppcCxnYXRld2F5Omd3fSlcbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgfSkuY2F0Y2goZnVuY3Rpb24oZXJyKXtcbiAgICAgIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGNvbmYgZXJyb3InKVxuICAgIH0pXG4gIH0pXG5cbn07XG5tb2R1bGUuZXhwb3J0cyA9IEhBUERTV1xuIl0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9

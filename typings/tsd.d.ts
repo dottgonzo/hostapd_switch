@@ -10,3 +10,4 @@
 /// <reference path="bluebird/bluebird.d.ts" />
 /// <reference path="deep-diff/deep-diff.d.ts" />
 /// <reference path="path-exists/path-exists.d.ts" />
+/// <reference path="async/async.d.ts" />

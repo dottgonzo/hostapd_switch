@@ -132,7 +132,7 @@ export = class HostapdSwitch {
 
     };
 
-    host = function(e: void) {
+    host = function(e: any) {
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.host;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
@@ -155,7 +155,7 @@ export = class HostapdSwitch {
     };
 
 
-    ap = function(e: void) {
+    ap = function(e: any) {
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.host;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'

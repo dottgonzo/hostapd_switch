@@ -108,7 +108,7 @@ let config: IClassConf = {
 export = class HostapdSwitch {
     config: IClassConf;
     dnsmasq: {};
-    constructor(options: IClassOpt, init: boolean) {
+    constructor(options: IClassOpt, init?: boolean) {
         merge(config, options)
 
         if (!pathExists.sync('/etc/default/hostapd')) {

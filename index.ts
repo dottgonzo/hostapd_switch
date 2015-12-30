@@ -69,6 +69,7 @@ interface IHostapdCf {
     interface?: string;
     ssid?: string;
 };
+
 interface IDnsmasq {
     interface: string;
 };
@@ -76,7 +77,6 @@ interface IDnsmasq {
 interface IDnsmasqCf {
     interface?: string;
 };
-
 
 interface IClassOpt {
     interface?: string;

@@ -59,113 +59,100 @@ function testconn(d: string, testint?: boolean) {
 
 }
 
-interface IHostapd{
-    interface:string;
-        ssid:string;
-            wpa_passphrase:any;
+interface IHostapd {
+    interface: string;
+    ssid: string;
+    wpa_passphrase: any;
 };
 
-interface IHostapdCf{
-    interface?:string;
-        ssid?:string;
+interface IHostapdCf {
+    interface?: string;
+    ssid?: string;
 };
-interface IDnsmasq{
-    interface:string;
-};
-
-interface IDnsmasqCf{
-    interface?:string;
+interface IDnsmasq {
+    interface: string;
 };
 
-
-interface IClass{
-    interface:string;
-    wpasupplicant_path:string;
-    hostapd:IHostapd,
-    init:boolean;
+interface IDnsmasqCf {
+    interface?: string;
 };
 
 
-
-interface IClassConf{
-    interface?:string;
-    wpasupplicant_path?:string;
-    hostapd?:IHostapdCf;
-    redirect?:boolean;
-        dnsmasq?:IDnsmasqCf;
+interface IClassOpt {
+    interface?: string;
+    wpasupplicant_path?: string;
+    hostapd?: IHostapdCf;
+    redirect?: boolean;
+    dnsmasq?: IDnsmasqCf;
 };
 
-interface IConfSwitch{
-    interface:string;
-    wpasupplicant_path:string;
-
-    hostapd:IHostapd;
-    dnsmasq:IDnsmasq;
-    init:boolean;
-    redirect:boolean;
+interface IClassConf {
+    interface: string;
+    wpasupplicant_path: string;
+    hostapd: IHostapd;
+    dnsmasq: IDnsmasq;
+    init: boolean;
+    redirect: boolean;
 };
 
 
-    let config:IConfSwitch = {
-        interface: "wlan0",
-        wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
-        redirect: true,
-        hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
-        dnsmasq: { interface: "wlan0" },
-        init:false
-    }
+let config: IClassConf = {
+    interface: "wlan0",
+    wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
+    redirect: true,
+    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
+    dnsmasq: { interface: "wlan0" },
+    init: false
+};
 
+export = class HostapdSwitch {
+    config: IClassConf;
+    dnsmasq: {};
+    constructor(options: IClassOpt, init: boolean) {
+        merge(config, options)
 
-export = class HostapdSwitch{
-config:IConfSwitch;
-dnsmasq:{};
-    constructor(options:IClassConf, init:boolean){
-            merge(config, options)
-            
-                if (!pathExists.sync('/etc/default/hostapd')) {
-        throw Error('no default conf file was founded for hostapd')
-    }
-    if (!config.hostapd.ssid) {
-        throw Error('No ssid was provided')
-    }
-    if (!config.hostapd.wpa_passphrase) {
-        throw Error('No wpa_passphrase was provided')
-    }
-    this.config = config;
+        if (!pathExists.sync('/etc/default/hostapd')) {
+            throw Error('no default conf file was founded for hostapd')
+        }
+        if (!config.hostapd.ssid) {
+            throw Error('No ssid was provided')
+        }
+        if (!config.hostapd.wpa_passphrase) {
+            throw Error('No wpa_passphrase was provided')
+        }
+        this.config = config;
 
-    this.dnsmasq = new dnsmasqconf(config.dnsmasq);
+        this.dnsmasq = new dnsmasqconf(config.dnsmasq);
 
-    if (init) {
-        hostapdconf(config.hostapd).then(function() {
-            console.log('hostapd is now configured')
-        });
+        if (init) {
+            hostapdconf(config.hostapd).then(function() {
+                console.log('hostapd is now configured')
+            });
+        };
+
     };
-            
-    };
-    
-    
-    
-host = function(e: any) {
-    let dnsmasq = this.dnsmasq;
-    let hostIp = dnsmasq.host;
-    let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
-    return new Promise(function(resolve, reject) {
-        dnsmasq.setmode('host').then(function() {
 
-            exec(cmd).then(function() {
-                exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function() {
-                    resolve({ mode: 'host', ip: hostIp })
+    host = function(e: any) {
+        let dnsmasq = this.dnsmasq;
+        let hostIp = dnsmasq.host;
+        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
+        return new Promise(function(resolve, reject) {
+            dnsmasq.setmode('host').then(function() {
+
+                exec(cmd).then(function() {
+                    exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function() {
+                        resolve({ mode: 'host', ip: hostIp })
+                    }).catch(function(err) {
+                        verb(err, 'error', 'hostapd_switch ipfilter host switch')
+                    })
                 }).catch(function(err) {
-                    verb(err, 'error', 'hostapd_switch ipfilter host switch')
+                    verb(err, 'error', 'hostapd_switch executing host switch')
                 })
             }).catch(function(err) {
-                verb(err, 'error', 'hostapd_switch executing host switch')
+                verb(err, 'error', 'hostapd_switch executing dnsmasq host switch')
             })
-        }).catch(function(err) {
-            verb(err, 'error', 'hostapd_switch executing dnsmasq host switch')
         })
-    })
-};
+    };
 
 
     ap = function() {
@@ -213,9 +200,7 @@ host = function(e: any) {
                             })
                         } else {
                             resolve('executed')
-
                         }
-
                     }).catch(function(err) {
                         verb(err, 'warn', 'hostapd_switch exec')
                         if (testnetw) {
@@ -226,17 +211,10 @@ host = function(e: any) {
                             })
                         } else {
                             resolve('executed')
-
                         }
                     })
                 } else {
-                    if (n.externalIp) {
-                        resolve({
-                            mode: 'client', ip: ip, gateway: gw, externalIp: n.externalIp
-                        })
-                    } else {
-                        resolve({ mode: 'client', ip: ip, gateway: gw })
-                    }
+                    resolve({ mode: 'client', ip: ip, gateway: gw })
                 }
 
             }).catch(function(err) {
@@ -245,9 +223,9 @@ host = function(e: any) {
         })
 
     };
-    
-    
-    
+
+
+
 }
 
 

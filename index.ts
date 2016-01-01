@@ -17,38 +17,40 @@ function testconn(d: string, testint?: boolean) {
             let dev: any = false;
             let ip: any = false;
             let gw: any = false;
+            let netw: {mode:string};
             for (let ns = 0; ns < n.networks.length; ns++) {
                 if (n.networks[ns].interface == d) {
+                    netw=n.networks[ns];
                     dev = d;
                     if (n.networks[ns].ip) {
                         ip = n.networks[ns].ip
                     }
-                    if (n.networks[ns].gateway) {
-                        gw = n.networks[ns].gateway
-                    }
+              //      if (n.networks[ns].gateway) {
+               //         gw = n.networks[ns].gateway
+                //    }
                 }
             }
             if (!dev) {
                 reject('no interface')
             } else if (!ip) {
                 reject(dev + ' can\'t get an ip address')
-            } else if (!gw) {
-                reject(dev + ' has no gateway')
+          //  } else if (!gw) {
+           //     reject(dev + ' has no gateway')
             } else {
+                                            netw.mode="client";
                 if (testint) {
                     testinternet().then(function(a: { ip?: boolean }) {
                         if (a.ip) {
-                            resolve({
-                                mode: 'client', ip: ip, gateway: gw, externalIp: a.ip
-                            })
+                            resolve(netw)
                         } else {
-                            resolve({ mode: 'client', ip: ip, gateway: gw })
+                            resolve(netw)
                         }
                     }).catch(function(err) {
                         reject(err)
                     })
                 } else {
-                    resolve({ mode: 'client', ip: ip, gateway: gw })
+                    console.log("warn no internet")
+                    resolve(netw)
                 }
             }
 

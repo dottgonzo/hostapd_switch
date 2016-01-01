@@ -1,6 +1,6 @@
 {
   "name": "hostapd_switch",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "description": "Utility to easy switch between client mode and ap mode. ",
   "main": "index.js",
   "scripts": {
@@ -33,9 +33,9 @@
   "dependencies": {
     "bluebird": "^3.1.1",
     "dnsmasq-conf": "0.0.8",
-    "hostapdjs": "0.0.14",
+    "hostapdjs": "0.0.15",
     "json-add": "0.0.7",
-    "netw": "0.0.47",
+    "netw": "0.0.50",
     "path-exists": "^2.1.0",
     "promise-test-connection": "0.0.12",
     "promised-exec": "^1.0.1",

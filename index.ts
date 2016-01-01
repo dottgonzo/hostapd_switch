@@ -168,7 +168,7 @@ export = class HostapdSwitch {
                     verb(err, 'error', 'hostapd_switch executing ap switch')
                 })
             }).catch(function(err) {
-                verb(err, 'error', 'hostapd_switch executing ap switch')
+                verb(err, 'error', 'hostapd_switch executing dnsmasq before ap switch')
             })
         })
     };
@@ -185,7 +185,7 @@ export = class HostapdSwitch {
                 let ip = false;
                 let gw = false;
                 for (let ns = 0; ns < n.networks.length; ns++) {
-                    if (n.networks[ns].interface == dev && n.networks[ns].ip && n.networks[ns].gateway) {
+                    if (n.networks[ns].interface == dev && n.networks[ns].ip && n.networks[ns].gateway && n.networks[ns].gateway!='0.0.0.0') {
                         todo = false;
                         ip = n.networks[ns].ip;
                         gw = n.networks[ns].gateway;

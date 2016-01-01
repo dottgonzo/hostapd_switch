@@ -16,30 +16,29 @@ function testconn(d: string, testint?: boolean) {
         netw().then(function(n) {
             let dev: any = false;
             let ip: any = false;
-            let gw: any = false;
-            let netw: {mode:string};
+            let netw: { mode: string };
             for (let ns = 0; ns < n.networks.length; ns++) {
                 if (n.networks[ns].interface == d) {
-                    netw=n.networks[ns];
+                    netw = n.networks[ns];
                     dev = d;
                     if (n.networks[ns].ip) {
                         ip = n.networks[ns].ip
                     }
-              //      if (n.networks[ns].gateway) {
-               //         gw = n.networks[ns].gateway
-                //    }
+                    //      if (n.networks[ns].gateway) {
+                    //         gw = n.networks[ns].gateway
+                    //    }
                 }
             }
             if (!dev) {
                 reject('no interface')
             } else if (!ip) {
                 reject(dev + ' can\'t get an ip address')
-          //  } else if (!gw) {
-           //     reject(dev + ' has no gateway')
+                //  } else if (!gw) {
+                //     reject(dev + ' has no gateway')
             } else {
-                                            netw.mode="client";
+                netw.mode = "client";
                 if (testint) {
-                    testinternet().then(function(a: { ip?: boolean }) {
+                    testinternet().then(function(a: { ip?: any }) {
                         if (a.ip) {
                             resolve(netw)
                         } else {
@@ -174,7 +173,7 @@ export = class HostapdSwitch {
         })
     };
 
-    client = function(testnetw?:boolean, testint?:boolean) {
+    client = function(testnetw?: boolean, testint?: boolean) {
 
         let dev = this.config.interface;
         let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D wext && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';

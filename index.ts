@@ -181,17 +181,7 @@ export = class HostapdSwitch {
         return new Promise(function(resolve, reject) {
 
             netw().then(function(n) {
-                let todo = true;
-                let ip = false;
-                let gw = false;
-                for (let ns = 0; ns < n.networks.length; ns++) {
-                    if (n.networks[ns].interface == dev && n.networks[ns].ip && n.networks[ns].gateway && n.networks[ns].gateway!='0.0.0.0') {
-                        todo = false;
-                        ip = n.networks[ns].ip;
-                        gw = n.networks[ns].gateway;
-                    }
-                }
-                if (todo) {
+
                     exec(cmd).then(function() {
                         if (testnetw) {
                             testconn(dev, testint).then(function(answer) {
@@ -214,9 +204,6 @@ export = class HostapdSwitch {
                             resolve('executed')
                         }
                     })
-                } else {
-                    resolve({ mode: 'client', ip: ip, gateway: gw })
-                }
 
             }).catch(function(err) {
                 verb(err, 'error', 'hostapd_switch conf error')

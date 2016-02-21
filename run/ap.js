@@ -1,19 +1,19 @@
-var WlanSwitch=require('../index'),
-verb=require('verbo');
+var WlanSwitch = require('../index');
+var verb = require('verbo');
+var conf = {
+    interface: 'wlan0',
+    hostapd: {
+        driver: 'rtl871xdrv',
+        ssid: 'testttap',
+        wpa_passphrase: 'testpass'
+    }
+};
+var WS = new WlanSwitch(conf, true);
+console.log(WS);
+WS.ap().then(function (options) {
+    verb(options, 'info', 'hostapd_switch ap');
+}).catch(function (err) {
+    verb(err, 'error', 'hostapd_switch ap');
+});
 
-var conf={
-  interface:'wlan0',
-  hostapd:{
-    driver:'rtl871xdrv',
-  ssid:'testttap',
-  wpa_passphrase:'testpass'
-}
-}
-var WS=new WlanSwitch(conf,true)
-console.log(WS)
-
-WS.ap().then(function(options){
-  verb(options,'info','hostapd_switch ap')
-}).catch(function(err){
-  verb(err,'error','hostapd_switch ap')
-})
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJ1bi9hcC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxJQUFPLFVBQVUsV0FBUyxVQUFVLENBQUMsQ0FBQztBQUN0QyxJQUFJLElBQUksR0FBQyxPQUFPLENBQUMsT0FBTyxDQUFDLENBQUM7QUFFMUIsSUFBSSxJQUFJLEdBQUM7SUFDUCxTQUFTLEVBQUMsT0FBTztJQUNqQixPQUFPLEVBQUM7UUFDTixNQUFNLEVBQUMsWUFBWTtRQUNyQixJQUFJLEVBQUMsVUFBVTtRQUNmLGNBQWMsRUFBQyxVQUFVO0tBQzFCO0NBQ0EsQ0FBQTtBQUNELElBQUksRUFBRSxHQUFDLElBQUksVUFBVSxDQUFDLElBQUksRUFBQyxJQUFJLENBQUMsQ0FBQTtBQUNoQyxPQUFPLENBQUMsR0FBRyxDQUFDLEVBQUUsQ0FBQyxDQUFBO0FBRWYsRUFBRSxDQUFDLEVBQUUsRUFBRSxDQUFDLElBQUksQ0FBQyxVQUFTLE9BQU87SUFDM0IsSUFBSSxDQUFDLE9BQU8sRUFBQyxNQUFNLEVBQUMsbUJBQW1CLENBQUMsQ0FBQTtBQUMxQyxDQUFDLENBQUMsQ0FBQyxLQUFLLENBQUMsVUFBUyxHQUFHO0lBQ25CLElBQUksQ0FBQyxHQUFHLEVBQUMsT0FBTyxFQUFDLG1CQUFtQixDQUFDLENBQUE7QUFDdkMsQ0FBQyxDQUFDLENBQUEiLCJmaWxlIjoicnVuL2FwLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IFdsYW5Td2l0Y2g9cmVxdWlyZSgnLi4vaW5kZXgnKTtcbmxldCB2ZXJiPXJlcXVpcmUoJ3ZlcmJvJyk7XG5cbnZhciBjb25mPXtcbiAgaW50ZXJmYWNlOid3bGFuMCcsXG4gIGhvc3RhcGQ6e1xuICAgIGRyaXZlcjoncnRsODcxeGRydicsXG4gIHNzaWQ6J3Rlc3R0dGFwJyxcbiAgd3BhX3Bhc3NwaHJhc2U6J3Rlc3RwYXNzJ1xufVxufVxubGV0IFdTPW5ldyBXbGFuU3dpdGNoKGNvbmYsdHJ1ZSlcbmNvbnNvbGUubG9nKFdTKVxuXG5XUy5hcCgpLnRoZW4oZnVuY3Rpb24ob3B0aW9ucyl7XG4gIHZlcmIob3B0aW9ucywnaW5mbycsJ2hvc3RhcGRfc3dpdGNoIGFwJylcbn0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGFwJylcbn0pXG4iXSwic291cmNlUm9vdCI6Ii9zb3VyY2UvIn0=

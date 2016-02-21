@@ -1,6 +1,6 @@
 {
   "name": "hostapd_switch",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "description": "Utility to easy switch between client mode and ap mode. ",
   "main": "index.js",
   "scripts": {
@@ -26,16 +26,16 @@
     "wlan"
   ],
   "author": "Dario Caruso",
-  "license": "GPL v2",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/dottgonzo/hostapd_switch/issues"
   },
   "dependencies": {
     "bluebird": "^3.1.1",
-    "dnsmasq-conf": "0.0.10",
-    "hostapdjs": "0.0.15",
+    "dnsmasq-conf": "0.0.14",
+    "hostapdjs": "0.0.17",
     "json-add": "0.0.7",
-    "netw": "0.0.52",
+    "netw": "0.0.59",
     "path-exists": "^2.1.0",
     "promise-test-connection": "0.0.27",
     "promised-exec": "^1.0.1",

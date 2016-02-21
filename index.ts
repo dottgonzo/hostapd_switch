@@ -12,7 +12,7 @@ let hostapdconf = require("hostapdjs");
 
 function testconn(d: string, testint?: boolean) {
 
-    return new Promise(function(resolve, reject) {
+    return new Promise<boolean>(function(resolve, reject) {
         netw().then(function(n) {
             let dev: any = false;
             let ip: any = false;
@@ -30,9 +30,9 @@ function testconn(d: string, testint?: boolean) {
                 }
             }
             if (!dev) {
-                reject('no interface')
+                reject('no interface');
             } else if (!ip) {
-                reject(dev + ' can\'t get an ip address')
+                reject(dev + ' can\'t get an ip address');
                 //  } else if (!gw) {
                 //     reject(dev + ' has no gateway')
             } else {
@@ -40,21 +40,21 @@ function testconn(d: string, testint?: boolean) {
                 if (testint) {
                     testinternet().then(function(a: { ip?: any }) {
                         if (a.ip) {
-                            resolve(netw)
+                            resolve(true);
                         } else {
-                            resolve(netw)
+                            resolve(true);
                         }
                     }).catch(function(err) {
-                        reject(err)
+                        reject(err);
                     })
                 } else {
-                    console.log("warn no internet")
-                    resolve(netw)
+                    console.log("warn no internet");
+                    resolve(true);
                 }
             }
 
         }).catch(function(err) {
-            reject('netw' + err)
+            reject('netw' + err);
         })
     })
 
@@ -106,9 +106,51 @@ let config: IClassConf = {
     init: false
 };
 
+interface IDnsModes {
+    ap: IDnsMode;
+    link: IDnsMode;
+    host: IDnsMode
+};
+
+interface IDnsMode {
+    noresolv: boolean,
+    dns: [string],
+    dhcp: {
+        stop: number;
+        start: number;
+        lease: string;
+    };
+    hostIp: string,
+    test: boolean,
+    interface: any,
+    address?: string
+}
+
+
+
+interface IDns {
+        modes: IDnsModes;
+    mode?: string;
+    path:string;
+        interface: any;
+    test: boolean;
+    dhcp: {
+        stop: number;
+        start: number;
+        lease: string;
+    };
+    dns: [string];
+    hostIp: string;
+    ap:Function;
+    host:Function;
+    link:Function;
+    setmode(string);
+}
+
+
 export = class HostapdSwitch {
     config: IClassConf;
-    dnsmasq: {};
+    dnsmasq: IDns;
     constructor(options: IClassOpt, init?: boolean) {
         merge(config, options)
 
@@ -133,11 +175,11 @@ export = class HostapdSwitch {
 
     };
 
-    host = function(e?: any) {
+    host(e?: any) {
         let dnsmasq = this.dnsmasq;
-        let hostIp = dnsmasq.host;
+        let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
-        return new Promise(function(resolve, reject) {
+        return new Promise<{ mode: string, ip: string }>(function(resolve, reject) {
             dnsmasq.setmode('host').then(function() {
 
                 exec(cmd).then(function() {
@@ -156,11 +198,11 @@ export = class HostapdSwitch {
     };
 
 
-    ap = function(e?: any) {
+    ap(e?: any) {
         let dnsmasq = this.dnsmasq;
-        let hostIp = dnsmasq.host;
+        let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
-        return new Promise(function(resolve, reject) {
+        return new Promise<{ mode: string; ip: string }>(function(resolve, reject) {
             dnsmasq.ap().then(function() {
                 exec(cmd).then(function() {
                     resolve({ mode: 'ap', ip: hostIp })
@@ -173,12 +215,12 @@ export = class HostapdSwitch {
         })
     };
 
-    client = function(testnetw?: boolean, testint?: boolean) {
+    client(testnetw?: boolean, testint?: boolean) {
 
         let dev = this.config.interface;
         let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D wext && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
 
             netw().then(function(n) {
 
@@ -190,7 +232,7 @@ export = class HostapdSwitch {
                                 reject(err)
                             })
                         } else {
-                            resolve('executed')
+                            resolve(true)
                         }
                     }).catch(function(err) {
                         verb(err, 'warn', 'hostapd_switch exec')
@@ -201,7 +243,7 @@ export = class HostapdSwitch {
                                 reject(err)
                             })
                         } else {
-                            resolve('executed')
+                            resolve(true)
                         }
                     })
 

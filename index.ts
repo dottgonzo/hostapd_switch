@@ -179,12 +179,12 @@ export = class HostapdSwitch {
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
-        return new Promise<{ mode: string, ip: string }>(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
             dnsmasq.setmode('host').then(function() {
 
                 exec(cmd).then(function() {
                     exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function() {
-                        resolve({ mode: 'host', ip: hostIp })
+                        resolve(true)
                     }).catch(function(err) {
                         verb(err, 'error', 'hostapd_switch ipfilter host switch')
                     })
@@ -202,10 +202,10 @@ export = class HostapdSwitch {
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
-        return new Promise<{ mode: string; ip: string }>(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
             dnsmasq.ap().then(function() {
                 exec(cmd).then(function() {
-                    resolve({ mode: 'ap', ip: hostIp })
+                    resolve(true)
                 }).catch(function(err) {
                     verb(err, 'error', 'hostapd_switch executing ap switch')
                 })

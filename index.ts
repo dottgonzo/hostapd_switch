@@ -4,6 +4,8 @@ import * as pathExists from "path-exists";
 import * as dnsmasqconf from "dnsmasq-conf";
 import merge = require("json-add");
 import testinternet = require('promise-test-connection');
+import wpamanager = require('wpasupplicant-manager');
+
 let netw = require("netw");
 let verb = require('verbo');
 let exec = require('promised-exec');
@@ -64,11 +66,13 @@ interface IHostapd {
     interface: string;
     ssid: string;
     wpa_passphrase: any;
+        fileconf:string;
 };
 
 interface IHostapdCf {
     interface?: string;
     ssid?: string;
+    fileconf?:string;
 };
 
 interface IDnsmasq {
@@ -101,7 +105,7 @@ let config: IClassConf = {
     interface: "wlan0",
     wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
     redirect: true,
-    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
+    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111", fileconf:"/etc/default/hostapd" },
     dnsmasq: { interface: "wlan0" },
     init: false
 };
@@ -148,7 +152,7 @@ interface IDns {
 }
 
 
-export = class HostapdSwitch {
+export = class HostapdSwitch extends wpamanager {
     config: IClassConf;
     dnsmasq: IDns;
     constructor(options: IClassOpt, init?: boolean) {
@@ -164,7 +168,7 @@ export = class HostapdSwitch {
             throw Error('No wpa_passphrase was provided')
         }
         this.config = config;
-
+super(config.wpasupplicant_path)
         this.dnsmasq = new dnsmasqconf(config.dnsmasq);
 
         if (init) {

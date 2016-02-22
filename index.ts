@@ -70,7 +70,7 @@ interface IHostapd {
 };
 
 interface IHostapdCf {
-    interface?: string;
+    driver?: string;
     ssid?: string;
     fileconf?:string;
 };

@@ -73,6 +73,7 @@ interface IHostapdCf {
     driver?: string;
     ssid?: string;
     fileconf?:string;
+    wpa_passphrase?:string;
 };
 
 interface IDnsmasq {

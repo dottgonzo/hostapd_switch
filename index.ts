@@ -10,21 +10,40 @@ let netw = require("netw");
 let verb = require('verbo');
 let exec = require('promised-exec');
 let hostapdconf = require("hostapdjs");
+interface Scan {
+    essid: string;
+    mac: string;
+    signal: string;
+}
+
+interface Network {
+    type: string;
+    mac: string;
+    interface: string;
+    essid?: string;
+    scan?: Scan[];
+    ip?: string;
+    gateway?: string;
+}
 
 
 function testconn(d: string, testint?: boolean) {
 
     return new Promise<boolean>(function(resolve, reject) {
-        netw().then(function(n) {
+        netw().then(function(n:Network[]) {
             let dev: any = false;
+                        let netw: Network;
             let ip: any = false;
-            let netw: { mode: string };
-            for (let ns = 0; ns < n.networks.length; ns++) {
-                if (n.networks[ns].interface == d) {
-                    netw = n.networks[ns];
+
+            
+
+            for (let ns = 0; ns < n.length; ns++) {
+                if (n[ns].interface == d) {
+
+                    
                     dev = d;
-                    if (n.networks[ns].ip) {
-                        ip = n.networks[ns].ip
+                    if (n[ns].ip) {
+                        ip = n[ns].ip
                     }
                     //      if (n.networks[ns].gateway) {
                     //         gw = n.networks[ns].gateway
@@ -38,7 +57,8 @@ function testconn(d: string, testint?: boolean) {
                 //  } else if (!gw) {
                 //     reject(dev + ' has no gateway')
             } else {
-                netw.mode = "client";
+
+                
                 if (testint) {
                     testinternet().then(function(a: { ip?: any }) {
                         if (a.ip) {
@@ -156,6 +176,7 @@ interface IDns {
 export = class HostapdSwitch extends wpamanager {
     config: IClassConf;
     dnsmasq: IDns;
+    mode:string;
     constructor(options: IClassOpt, init?: boolean) {
         merge(config, options)
 
@@ -181,6 +202,7 @@ super(config.wpasupplicant_path)
     };
 
     host(e?: any) {
+        this.mode="host";
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
@@ -204,6 +226,7 @@ super(config.wpasupplicant_path)
 
 
     ap(e?: any) {
+                this.mode="ap";
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
@@ -221,13 +244,14 @@ super(config.wpasupplicant_path)
     };
 
     client(testnetw?: boolean, testint?: boolean) {
-
+                this.mode="client";
         let dev = this.config.interface;
         let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D wext && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
 
         return new Promise<boolean>(function(resolve, reject) {
 
-            netw().then(function(n) {
+
+                
 
                     exec(cmd).then(function() {
                         if (testnetw) {
@@ -252,9 +276,7 @@ super(config.wpasupplicant_path)
                         }
                     })
 
-            }).catch(function(err) {
-                verb(err, 'error', 'hostapd_switch conf error')
-            })
+  
         })
 
     };

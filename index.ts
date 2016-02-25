@@ -188,8 +188,12 @@ export = class HostapdSwitch extends wpamanager {
         if (!config.hostapd.wpa_passphrase) {
             throw Error('No wpa_passphrase was provided')
         }
+        
+        super(config.wpasupplicant_path)
+        
+        
         this.config = config;
-super(config.wpasupplicant_path)
+
         this.dnsmasq = new dnsmasqconf(config.dnsmasq);
 
         if (init) {

@@ -86,13 +86,12 @@ interface IHostapd {
     interface: string;
     ssid: string;
     wpa_passphrase: any;
-        fileconf:string;
+
 };
 
 interface IHostapdCf {
     driver?: string;
     ssid?: string;
-    fileconf?:string;
     wpa_passphrase?:string;
 };
 
@@ -126,7 +125,7 @@ let config: IClassConf = {
     interface: "wlan0",
     wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
     redirect: true,
-    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111", fileconf:"/etc/default/hostapd" },
+    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
     dnsmasq: { interface: "wlan0" },
     init: false
 };

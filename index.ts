@@ -70,7 +70,7 @@ function testconn(d: string, testint?: boolean) {
                         reject(err);
                     })
                 } else {
-                    console.log("warn no internet");
+                    console.log("no internet test");
                     resolve(true);
                 }
             }

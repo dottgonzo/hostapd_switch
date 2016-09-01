@@ -14,5 +14,16 @@
     "deep-diff": "github:DefinitelyTyped/DefinitelyTyped/deep-diff/deep-diff.d.ts#1da639a106527e0c4010b354a1efe52a3059a291",
     "path-exists": "github:DefinitelyTyped/DefinitelyTyped/path-exists/path-exists.d.ts#1da639a106527e0c4010b354a1efe52a3059a291",
     "async": "github:DefinitelyTyped/DefinitelyTyped/async/async.d.ts#dc9dabe74a5be62613b17a3605309783a12ff28a"
+  },
+  "globalDevDependencies": {
+    "async": "registry:dt/async#2.0.1+20160804113311",
+    "chai": "registry:dt/chai#3.4.0+20160601211834",
+    "deep-diff": "registry:dt/deep-diff#0.0.0+20160317120654",
+    "mocha": "registry:dt/mocha#2.2.5+20160720003353",
+    "node": "registry:dt/node#6.0.0+20160831021119",
+    "path-exists": "registry:dt/path-exists#1.0.0+20160316155526"
+  },
+  "globalDependencies": {
+    "bluebird": "registry:dt/bluebird#3.0.0+20160811111256"
   }
 }

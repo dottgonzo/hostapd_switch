@@ -1,4 +1,4 @@
-import WlanSwitch=require('../index');
+import WlanSwitch from '../index';
 let verb=require('verbo');
 
 var conf={

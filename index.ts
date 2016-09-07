@@ -29,18 +29,18 @@ interface Network {
 
 function testconn(d: string, testint?: boolean) {
 
-    return new Promise<boolean>(function(resolve, reject) {
-        netw().then(function(n:Network[]) {
+    return new Promise<boolean>(function (resolve, reject) {
+        netw().then(function (n: Network[]) {
             let dev: any = false;
-                        let netw: Network;
+            let netw: Network;
             let ip: any = false;
 
-            
+
 
             for (let ns = 0; ns < n.length; ns++) {
                 if (n[ns].interface == d) {
 
-                    
+
                     dev = d;
                     if (n[ns].ip) {
                         ip = n[ns].ip
@@ -58,15 +58,15 @@ function testconn(d: string, testint?: boolean) {
                 //     reject(dev + ' has no gateway')
             } else {
 
-                
+
                 if (testint) {
-                    testinternet().then(function(a: { ip?: any }) {
+                    testinternet().then(function (a: { ip?: any }) {
                         if (a.ip) {
                             resolve(true);
                         } else {
                             resolve(true);
                         }
-                    }).catch(function(err) {
+                    }).catch(function (err) {
                         reject(err);
                     })
                 } else {
@@ -75,7 +75,7 @@ function testconn(d: string, testint?: boolean) {
                 }
             }
 
-        }).catch(function(err) {
+        }).catch(function (err) {
             reject('netw' + err);
         })
     })
@@ -86,13 +86,13 @@ interface IHostapd {
     interface: string;
     ssid: string;
     wpa_passphrase: any;
-
+    driver?: string;
 };
 
 interface IHostapdCf {
     driver?: string;
     ssid?: string;
-    wpa_passphrase?:string;
+    wpa_passphrase?: string;
 };
 
 interface IDnsmasq {
@@ -153,10 +153,10 @@ interface IDnsMode {
 
 
 interface IDns {
-        modes: IDnsModes;
+    modes: IDnsModes;
     mode?: string;
-    path:string;
-        interface: any;
+    path: string;
+    interface: any;
     test: boolean;
     dhcp: {
         stop: number;
@@ -165,9 +165,9 @@ interface IDns {
     };
     dns: [string];
     hostIp: string;
-    ap:Function;
-    host:Function;
-    link:Function;
+    ap: Function;
+    host: Function;
+    link: Function;
     setmode(string);
 }
 
@@ -175,7 +175,7 @@ interface IDns {
 export default class HostapdSwitch extends wpamanager {
     config: IClassConf;
     dnsmasq: IDns;
-    mode:string;
+    mode: string;
     constructor(options: IClassOpt, init?: boolean) {
         merge(config, options)
 
@@ -188,16 +188,16 @@ export default class HostapdSwitch extends wpamanager {
         if (!config.hostapd.wpa_passphrase) {
             throw Error('No wpa_passphrase was provided')
         }
-        
+
         super(config.wpasupplicant_path)
-        
-        
+
+
         this.config = config;
 
         this.dnsmasq = new dnsmasqconf(config.dnsmasq);
 
         if (init) {
-            hostapdconf(config.hostapd).then(function() {
+            hostapdconf(config.hostapd).then(function () {
                 console.log('hostapd is now configured')
             });
         };
@@ -205,23 +205,23 @@ export default class HostapdSwitch extends wpamanager {
     };
 
     host(e?: any) {
-        this.mode="host";
+        this.mode = "host";
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
-        return new Promise<boolean>(function(resolve, reject) {
-            dnsmasq.setmode('host').then(function() {
+        return new Promise<boolean>(function (resolve, reject) {
+            dnsmasq.setmode('host').then(function () {
 
-                exec(cmd).then(function() {
-                    exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function() {
+                exec(cmd).then(function () {
+                    exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function () {
                         resolve(true)
-                    }).catch(function(err) {
+                    }).catch(function (err) {
                         verb(err, 'error', 'hostapd_switch ipfilter host switch')
                     })
-                }).catch(function(err) {
+                }).catch(function (err) {
                     verb(err, 'error', 'hostapd_switch executing host switch')
                 })
-            }).catch(function(err) {
+            }).catch(function (err) {
                 verb(err, 'error', 'hostapd_switch executing dnsmasq host switch')
             })
         })
@@ -229,57 +229,58 @@ export default class HostapdSwitch extends wpamanager {
 
 
     ap(e?: any) {
-                this.mode="ap";
+        this.mode = "ap";
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
-        return new Promise<boolean>(function(resolve, reject) {
-            dnsmasq.ap().then(function() {
-                exec(cmd).then(function() {
+        return new Promise<boolean>(function (resolve, reject) {
+            dnsmasq.ap().then(function () {
+                exec(cmd).then(function () {
                     resolve(true)
-                }).catch(function(err) {
+                }).catch(function (err) {
                     verb(err, 'error', 'hostapd_switch executing ap switch')
                 })
-            }).catch(function(err) {
+            }).catch(function (err) {
                 verb(err, 'error', 'hostapd_switch executing dnsmasq before ap switch')
             })
         })
     };
 
     client(testnetw?: boolean, testint?: boolean) {
-                this.mode="client";
-        let dev = this.config.interface;
-        let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
+        this.mode = "client";
+        const dev = this.config.interface;
+        const driver = this.config.hostapd.driver;
+        let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D '+driver+' && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
 
-        return new Promise<boolean>(function(resolve, reject) {
+        return new Promise<boolean>(function (resolve, reject) {
 
 
-                
 
-                    exec(cmd).then(function() {
-                        if (testnetw) {
-                            testconn(dev, testint).then(function(answer) {
-                                resolve(answer)
-                            }).catch(function(err) {
-                                reject(err)
-                            })
-                        } else {
-                            resolve(true)
-                        }
-                    }).catch(function(err) {
-                        verb(err, 'warn', 'hostapd_switch exec')
-                        if (testnetw) {
-                            testconn(dev, testint).then(function(answer) {
-                                resolve(answer)
-                            }).catch(function(err) {
-                                reject(err)
-                            })
-                        } else {
-                            resolve(true)
-                        }
+
+            exec(cmd).then(function () {
+                if (testnetw) {
+                    testconn(dev, testint).then(function (answer) {
+                        resolve(answer)
+                    }).catch(function (err) {
+                        reject(err)
                     })
+                } else {
+                    resolve(true)
+                }
+            }).catch(function (err) {
+                verb(err, 'warn', 'hostapd_switch exec')
+                if (testnetw) {
+                    testconn(dev, testint).then(function (answer) {
+                        resolve(answer)
+                    }).catch(function (err) {
+                        reject(err)
+                    })
+                } else {
+                    resolve(true)
+                }
+            })
 
-  
+
         })
 
     };

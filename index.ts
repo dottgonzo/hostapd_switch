@@ -249,8 +249,13 @@ export default class HostapdSwitch extends wpamanager {
     client(testnetw?: boolean, testint?: boolean) {
         this.mode = "client";
         const dev = this.config.interface;
-        const driver = this.config.hostapd.driver;
-        let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D '+driver+' && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
+        let driver: string;
+        if (this.config.hostapd.driver === 'nl80211') {
+            driver = 'nl80211';
+        } else {
+            driver = 'wext';
+        }
+        let cmd = 'ifconfig ' + dev + ' down && sleep 2 ; pkill wpa_supplicant ;  dhclient -r ' + dev + ' ; systemctl stop hostapd ; systemctl stop dnsmasq ; sleep 2; ifconfig ' + dev + ' up && wpa_supplicant -B -i ' + dev + ' -c ' + this.config.wpasupplicant_path + ' -D ' + driver + ' && dhclient ' + dev + ' && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
 
         return new Promise<boolean>(function (resolve, reject) {
 

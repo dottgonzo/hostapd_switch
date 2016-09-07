@@ -254,9 +254,6 @@ export default class HostapdSwitch extends wpamanager {
 
         return new Promise<boolean>(function (resolve, reject) {
 
-
-
-
             exec(cmd).then(function () {
                 if (testnetw) {
                     testconn(dev, testint).then(function (answer) {

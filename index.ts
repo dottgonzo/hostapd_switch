@@ -4,7 +4,7 @@ import * as pathExists from "path-exists";
 import * as dnsmasqconf from "dnsmasq-conf";
 import merge = require("json-add");
 import testinternet = require('promise-test-connection');
-import wpamanager = require('wpasupplicant-manager');
+import wpamanager from 'wpasupplicant-manager' ;
 
 let netw = require("netw");
 let verb = require('verbo');

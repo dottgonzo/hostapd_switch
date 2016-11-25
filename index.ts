@@ -2,14 +2,14 @@
 import * as Promise from "bluebird";
 import * as pathExists from "path-exists";
 import * as dnsmasqconf from "dnsmasq-conf";
-import merge = require("json-add");
-import testinternet = require('promise-test-connection');
+import merge from "json-add";
+import testinternet from 'promise-test-connection';
 import wpamanager from 'wpasupplicant-manager' ;
 
-let netw = require("netw");
-let verb = require('verbo');
-let exec = require('promised-exec');
-let hostapdconf = require("hostapdjs");
+import netw from "netw";
+const verb = require('verbo');
+const exec = require('promised-exec');
+import hostapdconf from "hostapdjs";
 interface Scan {
     essid: string;
     mac: string;

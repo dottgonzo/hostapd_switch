@@ -12,7 +12,7 @@ const WS = new WlanSwitch(conf, true)
 console.log(WS)
 
 WS.client(true, true).then(function (options) {
-    verb(options, 'info', 'hostapd_switch client')
+    verb(options, 'info', 'hostapd_switch host')
 }).catch(function (err) {
-    verb(err, 'error', 'hostapd_switch client')
+    verb(err, 'error', 'hostapd_switch host')
 })

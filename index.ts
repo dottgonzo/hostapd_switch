@@ -10,6 +10,7 @@ import netw from "netw";
 const verb = require('verbo');
 const exec = require('promised-exec');
 import hostapdconf from "hostapdjs";
+
 interface IScan {
     essid: string;
     mac: string;
@@ -27,6 +28,11 @@ interface INetwork {
     ip?: string;
     gateway?: string;
 }
+
+
+type Iwifimode = 'ap' | 'host' | 'client' | 'unmanaged' 
+
+
 
 function testconn(d: string, testint?: boolean) {
 
@@ -57,15 +63,9 @@ function testconn(d: string, testint?: boolean) {
                 //  } else if (!gw) {
                 //     reject(dev + ' has no gateway')
             } else {
-
-
                 if (testint) {
-                    testinternet().then(function (a: { ip?: any }) {
-                        if (a.ip) {
+                    testinternet().then(function () {
                             resolve(true);
-                        } else {
-                            resolve(true);
-                        }
                     }).catch(function (err) {
                         reject(err);
                     })
@@ -165,10 +165,9 @@ interface IDns {
 export default class HostapdSwitch extends wpamanager {
     config: IClassConf;
     dnsmasq: IDns;
-    mode: string;
+    wifimode: Iwifimode;
+
     constructor(options: IClassOpt, init?: boolean) {
-
-
 
         const config: IClassConf = {
             interface: "wlan0",
@@ -208,7 +207,7 @@ export default class HostapdSwitch extends wpamanager {
     };
 
     host(e?: any) {
-        this.mode = "host";
+        const that = this
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
@@ -217,6 +216,7 @@ export default class HostapdSwitch extends wpamanager {
 
                 exec(cmd).then(function () {
                     exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function () {
+                        that.wifimode = "host";
                         resolve(true)
                     }).catch(function (err) {
                         verb(err, 'error', 'hostapd_switch ipfilter host switch')
@@ -232,13 +232,15 @@ export default class HostapdSwitch extends wpamanager {
 
 
     ap(e?: any) {
-        this.mode = "ap";
+        const that = this
+
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
         return new Promise<boolean>(function (resolve, reject) {
             dnsmasq.ap().then(function () {
                 exec(cmd).then(function () {
+                    that.wifimode = "ap";
                     resolve(true)
                 }).catch(function (err) {
                     verb(err, 'error', 'hostapd_switch executing ap switch')
@@ -250,7 +252,8 @@ export default class HostapdSwitch extends wpamanager {
     };
 
     client(testnetw?: boolean, testint?: boolean) {
-        this.mode = "client";
+        const that = this
+
         const dev = this.config.interface;
         let driver: string;
         if (this.config.hostapd.driver === 'nl80211') {
@@ -263,6 +266,8 @@ export default class HostapdSwitch extends wpamanager {
         return new Promise<boolean>(function (resolve, reject) {
 
             exec(cmd).then(function () {
+                that.wifimode = "client";
+
                 if (testnetw) {
                     testconn(dev, testint).then(function (answer) {
                         resolve(answer)

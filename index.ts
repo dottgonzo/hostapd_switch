@@ -10,29 +10,29 @@ import netw from "netw";
 const verb = require('verbo');
 const exec = require('promised-exec');
 import hostapdconf from "hostapdjs";
-interface Scan {
+interface IScan {
     essid: string;
     mac: string;
     signal: string;
 }
 
-interface Network {
-    type: string;
+type INetworkType = 'wifi' | 'wired'
+
+interface INetwork {
+    type: INetworkType;
     mac: string;
     interface: string;
     essid?: string;
-    scan?: Scan[];
+    scan?: IScan[];
     ip?: string;
     gateway?: string;
 }
 
-
 function testconn(d: string, testint?: boolean) {
 
     return new Promise<boolean>(function (resolve, reject) {
-        netw().then(function (n: Network[]) {
+        netw().then(function (n) {
             let dev: any = false;
-            let netw: Network;
             let ip: any = false;
 
 

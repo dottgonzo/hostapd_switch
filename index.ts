@@ -210,7 +210,7 @@ export default class HostapdSwitch extends wpamanager {
         const that = this
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
-        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
+        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' down && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
         return new Promise<boolean>(function (resolve, reject) {
             dnsmasq.host().then(function () {
 
@@ -236,7 +236,7 @@ export default class HostapdSwitch extends wpamanager {
 
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
-        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
+        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' down  && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done'
         return new Promise<boolean>(function (resolve, reject) {
             dnsmasq.ap().then(function () {
                 exec(cmd).then(function () {

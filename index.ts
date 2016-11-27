@@ -206,11 +206,11 @@ export default class HostapdSwitch extends wpamanager {
 
     };
 
-    host(e?: any) {
+    host(e?: any) { // not working
         const that = this
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;
-        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
+        let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5 && for i in $( iptables -t nat --line-numbers -L | grep ^[0-9] | awk \'{ print $1 }\' | tac ); do iptables -t nat -D PREROUTING $i; done';
         return new Promise<boolean>(function (resolve, reject) {
             dnsmasq.host().then(function () {
 

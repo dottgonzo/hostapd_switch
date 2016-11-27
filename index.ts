@@ -4,7 +4,7 @@ import * as pathExists from "path-exists";
 import * as dnsmasqconf from "dnsmasq-conf";
 import merge from "json-add";
 import testinternet from 'promise-test-connection';
-import wpamanager from 'wpasupplicant-manager' ;
+import wpamanager from 'wpasupplicant-manager';
 
 import netw from "netw";
 const verb = require('verbo');
@@ -120,16 +120,6 @@ interface IClassConf {
     redirect: boolean;
 };
 
-
-let config: IClassConf = {
-    interface: "wlan0",
-    wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
-    redirect: true,
-    hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
-    dnsmasq: { interface: "wlan0" },
-    init: false
-};
-
 interface IDnsModes {
     ap: IDnsMode;
     link: IDnsMode;
@@ -177,6 +167,19 @@ export default class HostapdSwitch extends wpamanager {
     dnsmasq: IDns;
     mode: string;
     constructor(options: IClassOpt, init?: boolean) {
+
+
+
+        const config: IClassConf = {
+            interface: "wlan0",
+            wpasupplicant_path: "/etc/wpa_supplicant/wpa_supplicant.conf",
+            redirect: true,
+            hostapd: { interface: "wlan0", wpa_passphrase: false, ssid: "hapd111" },
+            dnsmasq: { interface: "wlan0" },
+            init: false
+        };
+
+
         merge(config, options)
 
         if (!pathExists.sync('/etc/default/hostapd')) {

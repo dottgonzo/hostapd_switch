@@ -4,5 +4,6 @@
     "driver": "nl80211",
     "ssid": "testttap",
     "wpa_passphrase": "testpass"
-  }
+  },
+  "wpasupplicant_path":"/etc/wpa_supplicant/wpa_supplicant.conf"
 }

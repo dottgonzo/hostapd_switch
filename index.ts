@@ -212,7 +212,7 @@ export default class HostapdSwitch extends wpamanager {
         let hostIp = dnsmasq.hostIp;
         let cmd = 'pkill wpa_supplicant ; ifconfig ' + this.config.interface + ' up && systemctl restart hostapd ; systemctl restart dnsmasq && ifconfig ' + this.config.interface + ' ' + hostIp + ' netmask 255.255.255.0 up && sleep 5';
         return new Promise<boolean>(function (resolve, reject) {
-            dnsmasq.setmode('host').then(function () {
+            dnsmasq.host().then(function () {
 
                 exec(cmd).then(function () {
                     exec('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination ' + hostIp + ':80 && iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination ' + hostIp + ':80').then(function () {

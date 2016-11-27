@@ -206,7 +206,7 @@ export default class HostapdSwitch extends wpamanager {
 
     };
 
-    host(e?: any) { // not working
+    host(e?: any) {
         const that = this
         let dnsmasq = this.dnsmasq;
         let hostIp = dnsmasq.hostIp;

@@ -1,6 +1,5 @@
 {
   "interface": "wlan0",
-  "wpasupplicant_path":"./wpa_supplicant.conf",
   "hostapd": {
     "driver": "nl80211",
     "ssid": "testttap",

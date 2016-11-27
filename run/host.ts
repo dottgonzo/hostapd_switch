@@ -3,6 +3,8 @@ const verb = require('verbo');
 
 const conf = require('./conf.json')
 
+conf.wpasupplicant_path=__dirname+'/wpa_supplicant.conf'
+
 
 conf.redirect = 4000
 

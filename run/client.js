@@ -1,19 +1,13 @@
-var WlanSwitch=require('../index'),
-verb=require('verbo');
+"use strict";
+var index_1 = require('../index');
+var verb = require('verbo');
+var conf = require('./conf.json');
+var WS = new index_1.default(conf, true);
+console.log(WS);
+WS.client(true, true).then(function (options) {
+    verb(options, 'info', 'hostapd_switch client');
+}).catch(function (err) {
+    verb(err, 'error', 'hostapd_switch client');
+});
 
-var conf={
-  interface:'wlan0',
-  hostapd:{
-    driver:'rtl871xdrv',
-  ssid:'testttap',
-  wpa_passphrase:'testpass'
-}
-}
-var WS=new WlanSwitch(conf,true)
-console.log(WS)
-
-WS.client(true,true).then(function(options){
-  verb(options,'info','hostapd_switch client')
-}).catch(function(err){
-  verb(err,'error','hostapd_switch client')
-})
+//# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJ1bi9jbGllbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtBQUFBLHNCQUF1QixVQUFVLENBQUMsQ0FBQTtBQUNsQyxJQUFNLElBQUksR0FBQyxPQUFPLENBQUMsT0FBTyxDQUFDLENBQUM7QUFFNUIsSUFBTSxJQUFJLEdBQUMsT0FBTyxDQUFDLGFBQWEsQ0FBQyxDQUFBO0FBR2pDLElBQU0sRUFBRSxHQUFDLElBQUksZUFBVSxDQUFDLElBQUksRUFBQyxJQUFJLENBQUMsQ0FBQTtBQUNsQyxPQUFPLENBQUMsR0FBRyxDQUFDLEVBQUUsQ0FBQyxDQUFBO0FBRWYsRUFBRSxDQUFDLE1BQU0sQ0FBQyxJQUFJLEVBQUMsSUFBSSxDQUFDLENBQUMsSUFBSSxDQUFDLFVBQVMsT0FBTztJQUN4QyxJQUFJLENBQUMsT0FBTyxFQUFDLE1BQU0sRUFBQyx1QkFBdUIsQ0FBQyxDQUFBO0FBQzlDLENBQUMsQ0FBQyxDQUFDLEtBQUssQ0FBQyxVQUFTLEdBQUc7SUFDbkIsSUFBSSxDQUFDLEdBQUcsRUFBQyxPQUFPLEVBQUMsdUJBQXVCLENBQUMsQ0FBQTtBQUMzQyxDQUFDLENBQUMsQ0FBQSIsImZpbGUiOiJydW4vY2xpZW50LmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IFdsYW5Td2l0Y2ggZnJvbSAnLi4vaW5kZXgnO1xuY29uc3QgdmVyYj1yZXF1aXJlKCd2ZXJibycpO1xuXG5jb25zdCBjb25mPXJlcXVpcmUoJy4vY29uZi5qc29uJylcblxuXG5jb25zdCBXUz1uZXcgV2xhblN3aXRjaChjb25mLHRydWUpXG5jb25zb2xlLmxvZyhXUylcblxuV1MuY2xpZW50KHRydWUsdHJ1ZSkudGhlbihmdW5jdGlvbihvcHRpb25zKXtcbiAgdmVyYihvcHRpb25zLCdpbmZvJywnaG9zdGFwZF9zd2l0Y2ggY2xpZW50Jylcbn0pLmNhdGNoKGZ1bmN0aW9uKGVycil7XG4gIHZlcmIoZXJyLCdlcnJvcicsJ2hvc3RhcGRfc3dpdGNoIGNsaWVudCcpXG59KVxuIl19

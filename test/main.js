@@ -13,7 +13,7 @@ dnsmasq:{
   test:true
 }
 }
-var json=new WlanSwitch(conf)
+var json=new WlanSwitch.default(conf)
 console.log(json)
 describe('Status Object', function() {
   describe('check json', function () {

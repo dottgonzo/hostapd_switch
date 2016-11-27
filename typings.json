@@ -1,8 +1,10 @@
 {
   "globalDevDependencies": {
     "chai": "registry:dt/chai#3.4.0+20160601211834",
+    "gulp-util": "registry:dt/gulp-util#0.0.0+20160316155526",
     "mocha": "registry:dt/mocha#2.2.5+20161028141524",
-    "node": "registry:dt/node#6.0.0+20161110151007"
+    "node": "registry:dt/node#6.0.0+20161110151007",
+    "typescript": "registry:dt/typescript#0.4.0+20160317120654"
   },
   "globalDependencies": {
     "async": "registry:dt/async#2.0.1+20161110083428",

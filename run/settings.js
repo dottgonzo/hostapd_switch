@@ -1,13 +1,8 @@
-var WlanSwitch=require('../index'),
-verb=require('verbo');
+"use strict";
+var index_1 = require('../index');
+var verb = require('verbo');
+var conf = require('./conf.json');
+var WS = new index_1.default(conf, true);
+console.log(WS);
 
-var conf={
-  interface:'wlan0',
-  hostapd:{
-    driver:'rtl871xdrv',
-  ssid:'testttap',
-  wpa_passphrase:'testpass'
-}
-}
-var WS=new WlanSwitch(conf,true)
-console.log(WS)
+//# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJ1bi9zZXR0aW5ncy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsc0JBQXVCLFVBQVUsQ0FBQyxDQUFBO0FBQ2xDLElBQU0sSUFBSSxHQUFHLE9BQU8sQ0FBQyxPQUFPLENBQUMsQ0FBQztBQUU5QixJQUFNLElBQUksR0FBRyxPQUFPLENBQUMsYUFBYSxDQUFDLENBQUE7QUFFbkMsSUFBTSxFQUFFLEdBQUMsSUFBSSxlQUFVLENBQUMsSUFBSSxFQUFDLElBQUksQ0FBQyxDQUFBO0FBQ2xDLE9BQU8sQ0FBQyxHQUFHLENBQUMsRUFBRSxDQUFDLENBQUEiLCJmaWxlIjoicnVuL3NldHRpbmdzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IFdsYW5Td2l0Y2ggZnJvbSAnLi4vaW5kZXgnO1xuY29uc3QgdmVyYiA9IHJlcXVpcmUoJ3ZlcmJvJyk7XG5cbmNvbnN0IGNvbmYgPSByZXF1aXJlKCcuL2NvbmYuanNvbicpXG5cbmNvbnN0IFdTPW5ldyBXbGFuU3dpdGNoKGNvbmYsdHJ1ZSlcbmNvbnNvbGUubG9nKFdTKVxuIl19

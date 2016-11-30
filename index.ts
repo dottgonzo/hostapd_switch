@@ -5,6 +5,7 @@ import * as dnsmasqconf from "dnsmasq-conf";
 import merge from "json-add";
 import testinternet from 'promise-test-connection';
 import wpamanager from 'wpasupplicant-manager';
+import listwificlients from "listwificlients"
 
 import netw from "netw";
 const verb = require('verbo');
@@ -30,7 +31,7 @@ interface INetwork {
 }
 
 
-type Iwifimode = 'ap' | 'host' | 'client' | 'unmanaged' 
+type Iwifimode = 'ap' | 'host' | 'client' | 'unmanaged'
 
 
 
@@ -65,7 +66,7 @@ function testconn(d: string, testint?: boolean) {
             } else {
                 if (testint) {
                     testinternet().then(function () {
-                            resolve(true);
+                        resolve(true);
                     }).catch(function (err) {
                         reject(err);
                     })
@@ -294,6 +295,20 @@ export default class HostapdSwitch extends wpamanager {
         })
 
     };
+    listwificlients() {
+        const that = this
+        return new Promise(function (resolve, reject) {
+            if (that.wifimode === 'host' || that.wifimode === 'ap') {
+                listwificlients(this.config.interface).then((a) => {
+                    resolve(a)
+                }).catch((err) => {
+                    reject(err)
+                })
+            } else {
+                reject('wifimode is ' + that.wifimode)
+            }
+        })
+    }
 
 
 

@@ -34,6 +34,13 @@ interface INetwork {
 type Iwifimode = 'ap' | 'host' | 'client' | 'unmanaged'
 
 
+interface IWifiClient {
+    mac: string;
+    signal: string;
+    signalMin?: string;
+    signalMax?: string;
+
+}
 
 function testconn(d: string, testint?: boolean) {
 
@@ -295,9 +302,9 @@ export default class HostapdSwitch extends wpamanager {
         })
 
     };
-    listwificlients() {
+    listwificlients():Promise<IWifiClient[]> {
         const that = this
-        return new Promise(function (resolve, reject) {
+        return new Promise<IWifiClient[]>(function (resolve, reject) {
             if (that.wifimode === 'host' || that.wifimode === 'ap') {
                 listwificlients(this.config.interface).then((a) => {
                     resolve(a)

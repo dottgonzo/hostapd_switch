@@ -101,6 +101,8 @@ interface IHostapdCf {
     driver?: string;
     ssid?: string;
     wpa_passphrase?: string;
+    interface?: string;
+
 };
 
 interface IDnsmasq {
@@ -188,6 +190,11 @@ export default class HostapdSwitch extends wpamanager {
 
 
         merge(config, options)
+
+        if (config.interface !== 'auto' && (!options || !options.hostapd || !options.hostapd.interface) && (!options || !options.dnsmasq || !options.dnsmasq.interface)) {
+            config.hostapd.interface = config.interface
+            config.dnsmasq.interface = config.interface
+        }
 
         if (!pathExists.sync('/etc/default/hostapd')) {
             throw Error('no default conf file was founded for hostapd')
@@ -302,7 +309,7 @@ export default class HostapdSwitch extends wpamanager {
         })
 
     };
-    listwificlients():Promise<IWifiClient[]> {
+    listwificlients(): Promise<IWifiClient[]> {
         const that = this
         return new Promise<IWifiClient[]>(function (resolve, reject) {
             if (that.wifimode === 'host' || that.wifimode === 'ap') {

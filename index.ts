@@ -306,7 +306,7 @@ export default class HostapdSwitch extends wpamanager {
         const that = this
         return new Promise<IWifiClient[]>(function (resolve, reject) {
             if (that.wifimode === 'host' || that.wifimode === 'ap') {
-                listwificlients(this.config.interface).then((a) => {
+                listwificlients(that.config.interface).then((a) => {
                     resolve(a)
                 }).catch((err) => {
                     reject(err)

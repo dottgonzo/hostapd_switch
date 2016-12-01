@@ -191,10 +191,14 @@ export default class HostapdSwitch extends wpamanager {
 
         merge(config, options)
 
-        if (config.interface !== 'auto' && (!options || !options.hostapd || !options.hostapd.interface) && (!options || !options.dnsmasq || !options.dnsmasq.interface)) {
+        if (config.interface !== 'auto' && (!options || !options.hostapd || !options.hostapd.interface)) {
             config.hostapd.interface = config.interface
+        }
+
+        if (config.interface !== 'auto' && (!options || !options.dnsmasq || !options.dnsmasq.interface)) {
             config.dnsmasq.interface = config.interface
         }
+
 
         if (!pathExists.sync('/etc/default/hostapd')) {
             throw Error('no default conf file was founded for hostapd')
